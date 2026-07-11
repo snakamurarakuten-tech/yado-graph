@@ -1,0 +1,32 @@
+/* カード直接CTA & stretched link(依頼P0-1) */
+.card{position:relative;}
+
+/* カード全体を詳細へ飛ばす透明リンク(CTAより下のレイヤー) */
+.card-link{
+  position:absolute;inset:0;z-index:1;
+  border-radius:var(--radius);
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* サムネ上の楽天直リンクCTA(Cookie付与・1タップ送客) */
+.card-cta{
+  position:absolute;left:8px;bottom:12px;z-index:2;
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;line-height:1;letter-spacing:.01em;
+  color:#241505;background:var(--amber);
+  padding:8px 11px;border-radius:var(--radius-pill);
+  box-shadow:0 4px 14px rgba(0,0,0,.4);
+  transition:transform .14s var(--ease),opacity .18s var(--ease);
+}
+.card-cta svg{stroke:#241505;}
+.card-cta:active{transform:scale(.95);}
+
+/* ホバー可能環境: 通常は控えめ→ホバーで浮き出す(Netflix風) */
+@media (hover:hover){
+  .card-cta{opacity:0;transform:translateY(6px);}
+  .card:hover .card-cta{opacity:1;transform:none;}
+  .card:hover .thumb{filter:brightness(1.04);}
+}
+
+/* レビューなしの見た目(P2-7・統一表示) */
+.cr-none{color:var(--text-muted)!important;}

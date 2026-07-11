@@ -1,0 +1,14 @@
+{
+    "name": "ryokan/catalog",
+    "description": "旅館を眺めるだけでも楽しい旅行メディア (楽天トラベルAPI / PHP8)",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-pdo_sqlite": "*"
+    },
+    "autoload": {
+        "psr-4": { "App\\": "app/" }
+    }
+}

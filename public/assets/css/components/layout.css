@@ -1,0 +1,26 @@
+.stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;background:var(--ink);}
+.frame{
+  width:100%;max-width:430px;background:var(--paper);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;      /* スクロール領域＋下部メニューを縦積み */
+  height:100vh;height:100dvh;              /* モバイル: ビューポート高に固定 */
+}
+@media (min-width:640px){
+  .stage{padding:40px 16px;}
+  .frame{
+    height:min(920px, calc(100vh - 80px));  /* デスクトップ: 端末フレーム風に高さ固定 */
+    border-radius:36px;box-shadow:var(--shadow-lift);border:8px solid #05060c;
+  }
+}
+/* スクロールは内部だけ。下部メニューは常に最下部にピン留め(全ページ共通) */
+.scroll-area{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:24px;-webkit-overflow-scrolling:touch;}
+.wrap{padding:0 var(--gutter);}
+
+/* 改修5-3: 区切り罫線を廃止し、余白とsection-titleのみで分節(線疲れの軽減) */
+section.block{padding:calc(var(--section-y) + 6px) 0 var(--section-y);border-bottom:none;}
+section.block:last-of-type{border-bottom:none;}
+
+/* スクロール連動フェードイン */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease),transform .6s var(--ease);}
+.reveal.in{opacity:1;transform:none;}
+@media (prefers-reduced-motion:reduce){ .reveal{opacity:1;transform:none;} }

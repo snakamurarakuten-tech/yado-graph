@@ -1,0 +1,490 @@
+/* =====================================================================
+   ブランド(ロゴ) + 改修で追加した詳細ページ要素のスタイル
+   - サイトロゴ(金の円環マーク + ワードマーク)
+   - タグチップ / おすすめポイント / 温泉解説 / FAQ / 自動生成コメント
+   ===================================================================== */
+
+/* --- ブランドカラー(ロゴの金)。variables.css のトークンを補完 --- */
+:root{
+  --gold:      #b3993f;   /* ロゴの金(落ち着いたアンティークゴールド) */
+  --gold-soft: rgba(179,153,63,.16);
+}
+
+/* --- サイトロゴ --- */
+.site-logo{
+  display:inline-flex;align-items:center;gap:10px;
+  color:var(--gold);text-decoration:none;line-height:1;
+}
+.site-logo:hover{opacity:.85;}
+.site-logo-mark{display:block;flex-shrink:0;}
+.site-logo-word{
+  font-family:var(--font-serif);
+  font-size:15px;font-weight:500;
+  letter-spacing:.34em;      /* 指定ロゴの広めのトラッキングを再現 */
+  color:var(--gold);
+  white-space:nowrap;
+  transform:translateY(1px);
+}
+.site-logo-dot{letter-spacing:0;}
+.site-logo--mark .site-logo-word{display:none;}
+
+/* トップHeroの左上ブランド(写真上に置くため軽い影) */
+.top-hero .brand .site-logo{filter:drop-shadow(0 2px 10px rgba(0,0,0,.55));}
+/* 詳細ページの topnav 中央マーク */
+.topnav .site-logo{margin:0 auto;}
+
+/* フッターのロゴ */
+.site-footer .site-logo{margin:0 auto 12px;justify-content:center;display:flex;}
+
+/* --- パンくず直下のタグチップ(内部リンク・改修3-1) --- */
+.tag-chips{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin:2px 0 18px;
+}
+.tag-chip{
+  display:inline-flex;align-items:center;
+  font-size:12px;color:var(--amber-deep);
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-pill);
+  padding:6px 12px;text-decoration:none;
+  transition:border-color .18s var(--ease), background .18s var(--ease);
+}
+.tag-chip:hover{border-color:var(--amber);background:var(--amber-pale);}
+
+/* --- おすすめポイント(県内相対評価・改修3-2) --- */
+.highlight-list{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px;}
+.highlight-item{
+  display:flex;align-items:flex-start;gap:11px;
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold);
+  border-radius:10px;
+  padding:12px 14px;
+}
+.highlight-ico{
+  color:var(--gold);flex-shrink:0;
+  display:inline-flex;margin-top:2px;
+}
+.highlight-text{font-size:13.5px;line-height:1.75;color:var(--text);}
+.highlight-note{font-size:11px;color:var(--text-muted);margin-top:8px;}
+
+/* --- セクション内の小見出し(写真>客室、基本情報>FAQ 等) --- */
+.section-subtitle{
+  font-family:var(--font-serif);
+  font-size:14.5px;font-weight:700;color:var(--text);
+  margin:22px 0 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-subtitle::before{
+  content:"";width:4px;height:4px;border-radius:50%;
+  background:var(--gold);flex-shrink:0;
+}
+
+/* --- 温泉・お風呂(泉質辞書・改修3-3) --- */
+.onsen-note{
+  margin-top:14px;
+  background:linear-gradient(135deg, var(--gold-soft), transparent 70%), var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px 15px;
+}
+.onsen-note-label{
+  font-family:var(--font-serif);
+  font-size:13px;font-weight:700;color:var(--gold);
+  margin-bottom:5px;
+}
+.onsen-note p{font-size:13px;line-height:1.85;color:var(--text);margin:0;}
+
+/* --- よくある質問(改修3-5) --- */
+.faq-list{display:grid;gap:8px;}
+.faq-item{
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+.faq-item summary{
+  cursor:pointer;list-style:none;
+  display:flex;align-items:center;gap:10px;
+  font-size:13.5px;font-weight:500;color:var(--text);
+  padding:13px 14px;
+  -webkit-tap-highlight-color:transparent;
+}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary::before{
+  content:"Q";font-family:var(--font-serif);font-weight:700;
+  color:var(--gold);flex-shrink:0;
+}
+.faq-item summary::after{
+  content:"";margin-left:auto;flex-shrink:0;
+  width:8px;height:8px;
+  border-right:1.5px solid var(--text-muted);
+  border-bottom:1.5px solid var(--text-muted);
+  transform:rotate(45deg);
+  transition:transform .2s var(--ease);
+}
+.faq-item[open] summary::after{transform:rotate(-135deg);}
+.faq-item p{
+  font-size:13px;line-height:1.85;color:var(--text-muted);
+  margin:0;padding:0 14px 13px 34px;
+}
+
+/* --- 自動生成コメント(評価とクチコミ内・改修3-6) --- */
+.review-generated{
+  font-size:13.5px;line-height:1.9;color:var(--text);
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px 15px;margin-top:14px;
+}
+.review-generated-note{font-size:11px;color:var(--text-muted);margin-top:6px;}
+
+/* --- Heroの宿名を明朝に(改修5-1: 旅館の情緒) --- */
+.hero .hotel-name.serif,
+.hero .catch.serif{font-family:var(--font-serif);}
+
+/* --- 検索ページ(改修4-1) --- */
+.search-bar{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin:0 0 14px;
+}
+.search-input-wrap{
+  flex:1 1 100%;
+  display:flex;align-items:center;gap:9px;
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:0 13px;
+  transition:border-color .18s var(--ease);
+}
+.search-input-wrap:focus-within{border-color:var(--gold);}
+.search-input-wrap svg{color:var(--text-muted);flex-shrink:0;}
+.search-input-wrap input{
+  flex:1;min-width:0;
+  background:none;border:none;outline:none;
+  color:var(--text);font-size:15px;
+  padding:13px 0;
+  font-family:var(--font-sans);
+}
+.search-input-wrap input::placeholder{color:var(--text-muted);}
+.search-input-wrap input::-webkit-search-cancel-button{-webkit-appearance:none;}
+.search-bar select{
+  flex:1 1 0;min-width:0;
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  color:var(--text);font-size:13.5px;
+  padding:11px 12px;
+  font-family:var(--font-sans);
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2393907f' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:30px;
+}
+.search-submit{
+  flex:0 0 auto;
+  width:auto;min-width:88px;
+  padding:11px 20px;font-size:14px;
+}
+.search-hints{padding-top:14px;}
+.search-hint-note{font-size:12.5px;color:var(--text-muted);margin-top:14px;}
+.search-hint-note a{color:var(--amber-deep);}
+
+/* --- スケルトンUI(改修4-3: JSレールのフェッチ中プレースホルダ) --- */
+.card-skel .thumb{
+  aspect-ratio:3/4;border-radius:var(--radius);margin-bottom:8px;
+  background:linear-gradient(100deg, var(--paper-2) 40%, var(--paper-3) 50%, var(--paper-2) 60%);
+  background-size:220% 100%;
+  animation:skel-wave 1.4s ease infinite;
+}
+.skel-line{
+  height:11px;border-radius:6px;margin-bottom:6px;width:86%;
+  background:linear-gradient(100deg, var(--paper-2) 40%, var(--paper-3) 50%, var(--paper-2) 60%);
+  background-size:220% 100%;
+  animation:skel-wave 1.4s ease infinite;
+}
+.skel-line.short{width:52%;}
+@keyframes skel-wave{
+  0%{background-position:120% 0;}
+  100%{background-position:-80% 0;}
+}
+@media (prefers-reduced-motion: reduce){
+  .card-skel .thumb,.skel-line{animation:none;}
+}
+
+/* --- お気に入り共有(改修4-4) --- */
+.fav-actions{margin:0 0 16px;}
+.fav-share-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  width:auto;padding:10px 18px;font-size:13px;
+}
+.shared-note{
+  font-size:12.5px;color:var(--text-muted);
+  background:var(--paper-2);border:1px solid var(--border);
+  border-radius:10px;padding:10px 13px;margin:0 0 16px;line-height:1.7;
+}
+.shared-note a{color:var(--amber-deep);}
+.shared-empty{grid-column:1/-1;font-size:13px;color:var(--text-muted);padding:20px 0;}
+
+/* --- 軸別評価×県平均の比較バー(増強1) --- */
+.axis-compare{margin:16px 0 4px;display:grid;gap:9px;}
+.axis-row{display:grid;grid-template-columns:86px 1fr auto;align-items:center;gap:10px;}
+.axis-label{font-size:12px;color:var(--text-muted);}
+.axis-bar{
+  position:relative;height:7px;border-radius:4px;
+  background:var(--paper-2);border:1px solid var(--border);overflow:visible;
+}
+.axis-fill{
+  position:absolute;inset:0 auto 0 0;border-radius:4px;
+  background:linear-gradient(90deg, var(--gold-soft), var(--gold));
+}
+.axis-avg-mark{
+  position:absolute;top:-3px;bottom:-3px;width:2px;max-width:100%;
+  background:var(--text-muted);border-radius:1px;transform:translateX(-1px);
+}
+.axis-nums{font-size:12px;color:var(--text);white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;line-height:1.3;}
+.axis-nums strong{font-size:13.5px;}
+.axis-avg{color:var(--text-muted);font-size:10.5px;}
+.axis-note{font-size:11px;color:var(--text-muted);margin-top:10px;}
+
+/* --- こんな人におすすめ(増強4) --- */
+.audience-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.audience-chip{
+  font-size:12.5px;color:var(--text);
+  background:var(--gold-soft);
+  border:1px solid var(--gold);
+  border-radius:var(--radius-pill);
+  padding:7px 13px;
+}
+
+/* --- エリア文脈 + 近隣比較テーブル(増強2・3) --- */
+.city-context{font-size:13.5px;line-height:1.95;color:var(--text);margin-bottom:14px;}
+.compare-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0;max-width:100%;}
+.compare-table{
+  width:100%;min-width:520px;border-collapse:collapse;font-size:12px;
+}
+.compare-table th{
+  text-align:left;font-weight:500;color:var(--text-muted);
+  padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.compare-table td{
+  padding:9px 8px;border-bottom:1px solid var(--border);
+  color:var(--text);white-space:nowrap;
+}
+.compare-table .cmp-name{max-width:170px;overflow:hidden;text-overflow:ellipsis;}
+.compare-table .cmp-name a{color:var(--amber-deep);text-decoration:none;}
+.compare-table .cmp-name a:hover{text-decoration:underline;}
+.compare-self{background:var(--gold-soft);}
+.cmp-badge{
+  display:inline-block;margin-left:6px;font-size:10px;color:var(--gold);
+  border:1px solid var(--gold);border-radius:4px;padding:1px 5px;vertical-align:1px;
+}
+.compare-note{font-size:11px;color:var(--text-muted);margin-top:9px;}
+
+/* --- Instagram導線ボタン(メモ1: メインCTAより控えめなアウトライン) --- */
+.insta-link-wrap{margin-top:18px;}
+.insta-link-btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:13px;color:var(--text);
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:var(--radius-pill);
+  padding:10px 18px;text-decoration:none;
+  transition:border-color .18s var(--ease);
+}
+.insta-link-btn:hover{border-color:var(--gold);color:var(--gold);}
+.insta-link-note{font-size:11px;color:var(--text-muted);margin-top:7px;}
+
+/* --- 周辺スポットのチップ(実データのカンマ羅列対策) --- */
+.leisure-chips{display:flex;flex-wrap:wrap;gap:7px;}
+.leisure-chip{
+  font-size:12px;color:var(--text-muted);
+  background:var(--paper-2);border:1px solid var(--border);
+  border-radius:var(--radius-pill);padding:6px 11px;
+}
+
+/* --- Googleマップ埋め込み(Leaflet/OSMから置換) --- */
+.map-box{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+.gmap-embed{display:block;width:100%;height:240px;border:0;}
+.gmap-open{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--amber-deep);text-decoration:none;
+  margin:9px 0 4px;
+}
+.gmap-open:hover{text-decoration:underline;}
+
+/* --- 上部タブのアンカー着地位置(JS不能時のネイティブアンカー用フォールバックも兼ねる) --- */
+section[id^="rail-"]{scroll-margin-top:64px;}
+
+/* --- 評価から見る強みと注意点(増強6) --- */
+.proscons{margin:14px 0 4px;display:grid;gap:8px;}
+.pros-item,.cons-item{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:13px;line-height:1.8;color:var(--text);margin:0;
+}
+.pc-mark{flex-shrink:0;font-size:13px;line-height:1.8;}
+.pros-item .pc-mark{color:var(--gold);}
+.cons-item{color:var(--text-muted);}
+.cons-item .pc-mark{color:var(--text-muted);}
+
+/* --- クチコミ全件へのテキストリンク(CTR対策) --- */
+.review-more-link{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:14px;
+  font-size:13.5px;font-weight:500;
+  color:var(--amber);text-decoration:underline;text-underline-offset:3px;
+}
+.review-more-link:hover{color:var(--amber-deep);}
+.review-more-link svg{flex-shrink:0;}
+
+/* --- 温泉地ガイド(増強①) --- */
+.onsen-area-desc{
+  font-size:13.5px;line-height:2.0;color:var(--text);
+  background:linear-gradient(135deg, var(--gold-soft), transparent 65%), var(--paper-2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold);
+  border-radius:10px;
+  padding:15px 16px;margin:0 0 12px;
+}
+.onsen-area-link{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:13px;color:var(--amber-deep);
+  text-decoration:underline;text-underline-offset:3px;
+}
+.onsen-area-link:hover{color:var(--amber);}
+
+/* --- エリア(温泉地)ページ(増強②) --- */
+.area-tag-lead{font-size:13.5px;line-height:1.9;color:var(--text);margin:0 0 14px;}
+.area-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;}
+.area-stat{
+  background:var(--paper-2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 8px;text-align:center;
+}
+.area-stat .k{display:block;font-size:10.5px;color:var(--text-muted);margin-bottom:3px;}
+.area-stat .v{font-size:15px;font-weight:700;color:var(--text);}
+
+.area-ranking{list-style:none;margin:16px 0 8px;padding:0;display:grid;gap:10px;}
+.rank-item{background:var(--paper-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.rank-link{display:flex;gap:12px;padding:12px;text-decoration:none;color:var(--text);align-items:center;}
+.rank-no{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--text-muted);
+  border:1px solid var(--border);
+}
+.rank-no.top{color:#241505;background:var(--gold);border-color:var(--gold);}
+.rank-thumb{
+  flex-shrink:0;width:72px;height:92px;border-radius:8px;overflow:hidden;
+  background:var(--paper-3);display:flex;align-items:center;justify-content:center;
+}
+.rank-thumb img{width:100%;height:100%;object-fit:cover;}
+.rank-thumb .thumb-empty{font-size:10px;color:var(--text-muted);}
+.rank-body{min-width:0;display:flex;flex-direction:column;gap:4px;}
+.rank-name{font-size:14px;font-weight:700;line-height:1.4;}
+.rank-meta{font-size:11.5px;color:var(--text-muted);}
+.rank-hl{
+  font-size:11.5px;color:var(--gold);line-height:1.5;
+  display:flex;align-items:baseline;gap:5px;
+}
+.rank-hl::before{content:"◎";flex-shrink:0;font-size:10px;}
+
+/* --- この宿のこだわり(公式サイトより) --- */
+.official-catch{
+  font-family:var(--font-serif);
+  font-size:16px;font-weight:700;line-height:1.7;color:var(--text);
+  margin:0 0 14px;
+  padding-left:12px;border-left:3px solid var(--gold);
+}
+.official-points{display:grid;gap:10px;}
+.official-point{
+  background:var(--paper-2);border:1px solid var(--border);
+  border-radius:10px;padding:13px 15px;
+}
+.official-point-title{
+  font-family:var(--font-serif);
+  font-size:13.5px;font-weight:700;color:var(--gold);
+  margin:0 0 6px;
+}
+.official-point p{font-size:13px;line-height:1.9;color:var(--text);margin:0;}
+.official-note{font-size:11px;color:var(--text-muted);margin-top:10px;line-height:1.7;}
+.official-note a{color:var(--amber-deep);}
+
+/* --- 特集一覧 --- */
+.feature-list{display:grid;gap:12px;margin-top:4px;}
+.feature-card{
+  display:flex;flex-direction:column;gap:6px;
+  background:var(--paper-2);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+  text-decoration:none;color:var(--text);
+  transition:border-color .18s var(--ease);
+}
+.feature-card:hover{border-color:var(--gold);}
+.feature-date{font-size:11px;color:var(--text-muted);}
+.feature-title{font-size:16px;font-weight:700;line-height:1.5;}
+.feature-title.serif{font-family:var(--font-serif);}
+.feature-lead{font-size:12px;color:var(--text-muted);line-height:1.7;}
+
+/* --- 特集本文 --- */
+.feature-meta{font-size:11.5px;color:var(--text-muted);margin-top:6px;}
+.feature-lead-full{font-size:14px;line-height:2.05;color:var(--text);margin:6px 0 8px;}
+.feature-note{font-size:11px;color:var(--text-muted);margin:0 0 18px;}
+.feature-entries{display:grid;gap:14px;}
+.feature-entry{background:var(--paper-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.fe-link{display:block;padding:15px;text-decoration:none;color:var(--text);position:relative;}
+.fe-no{
+  position:absolute;top:12px;right:14px;
+  font-family:var(--font-serif);font-size:20px;font-weight:700;color:var(--gold-soft);
+  -webkit-text-stroke:1px var(--gold);
+}
+.fe-thumb{display:block;border-radius:8px;overflow:hidden;margin-bottom:11px;background:var(--paper-3);}
+.fe-thumb img{width:100%;height:170px;object-fit:cover;display:block;}
+.fe-body{display:flex;flex-direction:column;gap:5px;}
+.fe-heading{font-family:var(--font-serif);font-size:15.5px;font-weight:700;line-height:1.5;color:var(--text);}
+.fe-name{font-size:12.5px;color:var(--amber-deep);font-weight:500;}
+.fe-area{color:var(--text-muted);font-weight:400;}
+.fe-meta{font-size:11px;color:var(--text-muted);}
+.fe-text{font-size:13px;line-height:1.9;color:var(--text);margin-top:3px;}
+.feature-outro{
+  font-size:13px;line-height:1.9;color:var(--text-muted);
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--border);
+}
+
+/* --- モーション配慮(改修5-4) --- */
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1 !important;transform:none !important;transition:none !important;}
+  *{scroll-behavior:auto !important;}
+}
+
+/* =====================================================================
+   楽天トラベル画像のクレジット表記(API利用規約対応)
+   画像の左下に「楽天トラベル」を常時表示する。No Image には出さない。
+   ===================================================================== */
+.thumb-wrap{display:block;position:relative;}
+.gallery-grid a{position:relative;}
+.room-shot{position:relative;}
+.rank-thumb{position:relative;}
+.fe-thumb{position:relative;display:block;}
+.thumb-wrap::after,
+.hero-slide:has(img)::after,
+.gallery-grid a:has(img)::after,
+.room-shot:has(img)::after,
+.rank-thumb:has(img)::after,
+.fe-thumb:has(img)::after{
+  content:"楽天トラベル";
+  position:absolute;left:0;bottom:0;
+  font-size:8.5px;line-height:1;letter-spacing:.02em;
+  color:rgba(255,255,255,.85);
+  background:rgba(0,0,0,.45);
+  padding:3px 6px;border-radius:0 4px 0 0;
+  pointer-events:none;z-index:2;
+}
+/* カードは画像下に余白があるため、画像(aspect-ratio)の底辺に合わせる */
+.thumb-wrap::after{bottom:8px;}
+.card-wide .thumb-wrap::after{bottom:8px;}
+
+/* --- 温泉地一覧ハブ(/areas)・フッターナビ --- */
+.area-group{margin-bottom:20px;}
+.footer-nav{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 18px;margin-bottom:14px;}
+.footer-nav a{font-size:12px;color:var(--text-muted);text-decoration:none;}
+.footer-nav a:hover{color:var(--amber-deep);text-decoration:underline;}

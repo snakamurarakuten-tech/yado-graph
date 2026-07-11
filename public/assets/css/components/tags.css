@@ -1,0 +1,6 @@
+.tag-row{display:flex;flex-wrap:wrap;gap:7px;padding:22px 0 0;}
+.tag{
+  font-size:12px;padding:6px 13px;border-radius:var(--radius-pill);
+  border:1px solid var(--border);background:var(--paper-2);color:var(--text);
+}
+.tag.persona{background:var(--amber-pale);border-color:var(--amber);color:var(--amber-deep);font-weight:500;}

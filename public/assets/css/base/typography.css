@@ -1,0 +1,14 @@
+/* 見出し・本文の型。写真主役なので文字は静かに、見出しだけ明朝で品を出す */
+.eyebrow{
+  font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--amber);font-weight:500;
+}
+.section-title{
+  font-family:var(--font-serif);font-size:var(--fs-h2);font-weight:500;
+  display:flex;align-items:center;gap:8px;margin-bottom:16px;letter-spacing:.02em;
+}
+.section-title .bar{
+  width:3px;height:16px;background:var(--amber);border-radius:2px;display:inline-block;flex-shrink:0;
+}
+.lead{font-size:15.5px;line-height:1.9;color:var(--text);}
+.muted{color:var(--text-muted);}

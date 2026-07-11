@@ -1,0 +1,76 @@
+/* =====================================================================
+   デザイントークン — 「墨と灯り(ink & lantern)」
+   モックの :root を正式トークンとして採用・拡張。
+   ライト版(和紙×藍)はA/Bテスト用に [data-theme="light"] で切替可能。
+   ===================================================================== */
+:root{
+  /* --- 面(背景) --- 深い藍墨。写真を沈めて浮かせる --- */
+  --ink:        #0b0d15;   /* 最深部 */
+  --paper:      #0d0f18;   /* ベース */
+  --paper-2:    #161925;   /* カード面 */
+  --paper-3:    #212536;   /* 一段浮いた面 */
+
+  /* --- 灯り(アクセント) --- 障子越しの琥珀 --- */
+  --amber:      #d99a4e;
+  --amber-deep: #f1c98a;
+  --amber-pale: #3a2e1a;
+  --amber-glow: rgba(217,154,78,.16);
+
+  /* --- 墨字 --- */
+  --text:       #ece8de;   /* 生成り(きなり)の白 */
+  --text-muted: #93907f;
+  --on-ink:     #ece8de;
+  --on-ink-muted:#8c8ea3;
+
+  /* --- 線・面の分節 --- */
+  --border:     #262b38;
+  --border-soft:rgba(255,255,255,.08);
+
+  /* --- 形 --- */
+  --radius:     12px;
+  --radius-lg:  16px;
+  --radius-pill:999px;
+
+  /* --- 余白スケール(8pxベース、写真主役なので大きめ) --- */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-7: 32px;  --sp-8: 40px;
+  --gutter: 18px;              /* ページ左右の基準余白 */
+  --section-y: 34px;           /* セクション上下 */
+
+  /* --- タイポ --- */
+  --font-serif: "Noto Serif JP", serif;
+  --font-sans:  "Noto Sans JP", sans-serif;
+  --fs-hotel:   26px;          /* 旅館名(Hero) */
+  --fs-h2:      17px;          /* セクション見出し */
+  --fs-body:    15px;
+  --fs-sm:      12px;
+  --fs-xs:      11px;
+
+  /* --- 影・奥行き --- */
+  --shadow-card: 0 8px 30px rgba(0,0,0,.35);
+  --shadow-lift: 0 18px 50px rgba(0,0,0,.5);
+
+  /* --- iOS Safe Area --- */
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* --- モーション --- */
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+/* ライト版(和紙×藍) — 色トークンのみ差し替え。構造は共通 */
+[data-theme="light"]{
+  --ink:        #f4f1e8;
+  --paper:      #f7f4ec;
+  --paper-2:    #ffffff;
+  --paper-3:    #efe9db;
+  --amber:      #b5763a;
+  --amber-deep: #8a5a28;
+  --amber-pale: #f0e4cf;
+  --amber-glow: rgba(181,118,58,.14);
+  --text:       #1d2433;
+  --text-muted: #6a6d78;
+  --on-ink:     #ece8de;       /* 写真上の文字は暗背景前提のまま */
+  --on-ink-muted:#c9ccd6;
+  --border:     #e2dccc;
+  --border-soft:rgba(0,0,0,.08);
+}

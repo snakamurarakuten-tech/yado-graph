@@ -1,0 +1,2 @@
+/* お気に入り/履歴ページはcomponents/collection.cssでほぼ完結。差分のみ */
+.collection-page .scroll-area{padding-bottom:24px;}

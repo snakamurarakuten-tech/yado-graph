@@ -1,0 +1,8 @@
+.env
+/storage/cache/*
+/storage/db/*.sqlite*
+/storage/logs/*.jsonl
+!/storage/**/.gitkeep
+!/storage/cache/.gitignore
+/vendor/
+/public/assets/css/app.css

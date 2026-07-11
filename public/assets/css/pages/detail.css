@@ -1,0 +1,11 @@
+/* 詳細ページ固有の調整。共通コンポーネントで賄えない箇所のみ */
+.detail-special{font-size:15.5px;line-height:1.95;color:var(--text);}
+
+/* 旅をもっと楽しむ(クロスセル)セクションの見出し */
+.enjoy-more .section-title{margin-bottom:14px;}
+
+/* dev-note(公開時削除) */
+.dev-note{padding:20px var(--gutter) 30px;}
+.dev-note details{background:var(--ink);color:var(--on-ink-muted);border-radius:10px;padding:14px 16px;font-size:11.5px;border:1px solid var(--border);}
+.dev-note summary{cursor:pointer;color:var(--on-ink);font-weight:500;font-size:12px;}
+.dev-note pre{white-space:pre-wrap;margin-top:10px;line-height:1.6;font-family:ui-monospace,monospace;font-size:10.5px;}

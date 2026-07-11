@@ -1,0 +1,47 @@
+/* バッジ(自動付与) — 依頼B-5 */
+.badges{display:flex;flex-wrap:wrap;gap:6px;}
+
+.badge{
+  display:inline-flex;align-items:center;
+  font-size:10.5px;font-weight:700;line-height:1;letter-spacing:.02em;
+  padding:5px 9px;border-radius:var(--radius-pill);
+  border:1px solid transparent;white-space:nowrap;
+  backdrop-filter:blur(4px);
+}
+
+/* 主役級(高評価・隠れた名宿など) */
+.badge-gold{
+  background:var(--amber);color:#241505;border-color:var(--amber-deep);
+}
+/* 標準(露天・食事など) */
+.badge-amber{
+  background:var(--amber-pale);color:var(--amber-deep);border-color:var(--amber);
+}
+/* 設備系(サウナ・絶景・静けさ) */
+.badge-cool{
+  background:rgba(255,255,255,.06);color:var(--text);border-color:var(--border);
+}
+
+/* カード上: サムネ左上に重ねる。画像の上でも必ず読めるよう暗いスクリム＋白文字。 */
+.card-thumb-wrap{position:relative;}
+.badges-card{
+  position:absolute;top:8px;left:8px;right:8px;
+  gap:5px;pointer-events:none;
+}
+.badges-card .badge{
+  font-size:10px;padding:5px 9px;color:#fff;
+  background:rgba(18,14,8,.78);
+  border:1px solid rgba(255,255,255,.22);
+  border-left-width:3px;
+  backdrop-filter:blur(3px);
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+  text-shadow:0 1px 2px rgba(0,0,0,.6);
+}
+/* トーンは左アクセントの色で表現(視認性は白文字＋暗背景で担保) */
+.badges-card .badge-gold{border-left-color:var(--amber);}
+.badges-card .badge-amber{border-left-color:var(--amber);}
+.badges-card .badge-cool{border-left-color:#8fb7c9;}
+
+/* Hero下: 宿名の下に並べる */
+.badges-hero{margin-top:12px;}
+.badges-hero .badge{font-size:11px;padding:6px 11px;}

@@ -1,0 +1,5 @@
+.git
+.env
+storage/cache/*
+storage/logs/*.jsonl
+storage/db/*.sqlite*

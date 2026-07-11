@@ -1,0 +1,8 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # 実在するファイル(assets等)はそのまま返す
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>

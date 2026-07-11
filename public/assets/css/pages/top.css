@@ -1,0 +1,34 @@
+/* トップページ固有 */
+.top-hero{position:relative;height:64vh;min-height:420px;background:var(--ink);}
+.top-hero img{width:100%;height:100%;object-fit:cover;}
+.top-hero .hero-gradient{
+  background:linear-gradient(180deg, rgba(11,13,21,.5) 0%, rgba(11,13,21,0) 30%, rgba(11,13,21,.2) 55%, rgba(11,13,21,.98) 100%);
+}
+.top-hero .hero-content{padding-bottom:26px;}
+.top-hero .brand{
+  position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:var(--gutter);z-index:5;
+  font-family:var(--font-serif);font-size:18px;letter-spacing:.16em;color:var(--on-ink);
+  text-shadow:0 2px 12px rgba(0,0,0,.6);
+}
+.top-hero .brand span{color:var(--amber);}
+.top-hero .hero-cta{
+  display:inline-flex;align-items:center;gap:8px;margin-top:16px;
+  background:var(--amber);color:#241505;font-weight:700;font-size:14px;
+  padding:12px 24px;border-radius:10px;
+}
+.top-empty-rail{padding:60px var(--gutter);text-align:center;color:var(--text-muted);font-size:13px;line-height:1.9;}
+
+/* Heroのアクション行(この宿を見る / 今日の1軒) — 依頼C-9 */
+.top-hero .hero-actions{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.top-hero .hero-actions .hero-cta{margin-top:0;}
+.shuffle-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);
+  color:var(--on-ink);font-size:13px;font-weight:500;
+  padding:11px 16px;border-radius:10px;backdrop-filter:blur(6px);
+  transition:background .18s var(--ease),transform .12s var(--ease);
+}
+.shuffle-btn:active{transform:scale(.97);background:rgba(255,255,255,.2);}
+.shuffle-btn svg{stroke:currentColor;}
+.shuffle-btn.is-spinning svg{animation:shuffle-spin .5s var(--ease);}
+@keyframes shuffle-spin{from{transform:rotate(0);}to{transform:rotate(180deg);}}

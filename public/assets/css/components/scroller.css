@@ -1,0 +1,36 @@
+/* 見出し＋横スクロールカード列の共通の器 */
+.rail{padding:26px 0;}
+.rail + .rail{padding-top:8px;}
+.rail-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 var(--gutter);margin-bottom:14px;}
+.rail-head h2{font-family:var(--font-serif);font-size:var(--fs-h2);font-weight:500;letter-spacing:.02em;display:flex;align-items:center;gap:8px;}
+.rail-head h2 .bar{width:3px;height:16px;background:var(--amber);border-radius:2px;display:inline-block;}
+.rail-more{font-size:12px;color:var(--amber-deep);white-space:nowrap;}
+
+.rail-track{
+  display:flex;gap:12px;overflow-x:auto;
+  scroll-snap-type:x proximity;scrollbar-width:none;
+  padding:0 var(--gutter) 4px;
+}
+.rail-track::-webkit-scrollbar{display:none;}
+
+/* ポスター型(縦長・Netflix風) */
+.card-poster{flex:0 0 42%;scroll-snap-align:start;}
+.card-poster .thumb{border-radius:var(--radius);aspect-ratio:3/4;object-fit:cover;margin-bottom:8px;background:var(--paper-2);box-shadow:var(--shadow-card);}
+.card-poster .cn{font-size:13px;font-weight:500;line-height:1.4;}
+.card-poster .cd{font-size:var(--fs-xs);color:var(--text-muted);margin-top:1px;}
+.card-poster .cr{font-size:var(--fs-xs);color:var(--amber-deep);margin-top:2px;}
+
+/* ワイド型(横長・雑誌の見開き風) */
+.card-wide{flex:0 0 66%;scroll-snap-align:start;}
+.card-wide .thumb{border-radius:var(--radius);aspect-ratio:16/10;object-fit:cover;margin-bottom:8px;background:var(--paper-2);box-shadow:var(--shadow-card);}
+.card-wide .cn{font-size:13.5px;font-weight:500;line-height:1.4;}
+.card-wide .cd{font-size:var(--fs-xs);color:var(--text-muted);}
+.card-wide .cr{font-size:var(--fs-xs);color:var(--amber-deep);margin-top:2px;}
+
+/* プレースホルダ画像(URLが無いとき) */
+.thumb-empty{display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;}
+
+/* カードの最終更新表示 — 依頼D-12 */
+.card-poster .cu,.card-wide .cu{
+  font-size:10px;color:var(--on-ink-muted);margin-top:3px;letter-spacing:.02em;
+}

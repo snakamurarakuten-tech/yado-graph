@@ -1,0 +1,45 @@
+.bottom-stack{flex:0 0 auto;z-index:10;display:flex;flex-direction:column;}
+
+.sticky-cta{
+  background:rgba(13,15,24,.96);backdrop-filter:blur(10px);
+  padding:10px var(--gutter);display:flex;gap:10px;align-items:center;
+  border-top:1px solid var(--border-soft);
+}
+.sticky-fav{
+  width:46px;height:46px;flex-shrink:0;border-radius:10px;
+  border:1px solid rgba(255,255,255,.2);background:transparent;
+  display:flex;align-items:center;justify-content:center;
+}
+.sticky-fav svg{width:18px;height:18px;stroke:#f3eee2;fill:none;stroke-width:1.7;}
+.sticky-fav.active svg{fill:var(--amber);stroke:var(--amber);}
+.sticky-btn{
+  flex:1;background:var(--amber);color:#241505;font-weight:700;font-size:14.5px;
+  padding:14px 0;border-radius:10px;text-align:center;
+}
+
+.tabbar{
+  background:var(--ink);display:flex;border-top:1px solid var(--border-soft);
+  padding:6px 4px calc(6px + var(--safe-b));
+}
+.tab-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 2px;min-height:48px;justify-content:center;position:relative;background:transparent;border:none; /* 改修5-4: タップ領域44px以上 */
+  color:var(--on-ink-muted);font-size:10.5px;transition:color .2s var(--ease);
+}
+.tab-item svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;}
+.tab-item.active{color:var(--amber);}
+.tab-item.active svg{fill:var(--amber-glow);}
+.tab-badge{
+  position:absolute;top:0;right:22%;min-width:15px;height:15px;padding:0 3px;
+  border-radius:999px;background:var(--amber);color:#241505;font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.toast{
+  position:absolute;left:50%;bottom:176px;transform:translateX(-50%);
+  background:rgba(15,15,20,.94);color:#ece8de;font-size:12.5px;
+  padding:9px 18px;border-radius:999px;opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease);z-index:20;white-space:nowrap;
+  border:1px solid var(--border-soft);
+}
+.toast.show{opacity:1;}

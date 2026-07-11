@@ -1,0 +1,17 @@
+.facility-list li{
+  display:flex;gap:8px;font-size:13.5px;padding:11px 0;
+  border-bottom:1px dashed var(--border);
+}
+.facility-list li:last-child{border-bottom:none;}
+.facility-list li .k{color:var(--text-muted);min-width:96px;flex-shrink:0;}
+
+.map-box{
+  background:var(--paper-2);border-radius:var(--radius);height:200px;overflow:hidden;
+  border:1px solid var(--border);margin-bottom:6px;
+}
+.map-box iframe{width:100%;height:100%;border:0;filter:grayscale(.2) contrast(1.05);}
+#hotelMap{width:100%;height:100%;}
+.map-box .leaflet-container{background:var(--paper-2);}
+.map-attr{font-size:10px;color:var(--on-ink-muted);margin-bottom:14px;}
+.access-list p{font-size:13.5px;margin-bottom:9px;display:flex;gap:8px;}
+.access-list .k{color:var(--text-muted);font-size:var(--fs-xs);min-width:70px;flex-shrink:0;padding-top:1px;}

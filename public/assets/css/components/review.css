@@ -1,0 +1,9 @@
+.review-summary{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;}
+.review-summary .avg{font-size:30px;font-weight:500;font-family:var(--font-serif);color:var(--amber-deep);}
+.review-summary .stars{color:var(--amber);font-size:14px;letter-spacing:2px;}
+.review-summary .cnt{font-size:12px;color:var(--text-muted);}
+.review-card{background:var(--paper-2);border-radius:var(--radius);padding:16px 18px;border:1px solid var(--border);}
+.review-card p.comment{font-size:14px;margin-bottom:8px;line-height:1.8;}
+.review-meta{font-size:var(--fs-xs);color:var(--text-muted);display:flex;gap:10px;align-items:center;}
+.review-score{color:var(--amber-deep);font-weight:500;}
+.review-empty{font-size:13px;color:var(--text-muted);}
