@@ -55,7 +55,9 @@ $saveState = function () use (&$state, $stateFile): void {
     file_put_contents($stateFile, json_encode($state, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 };
 
-echo '[start] Custom Search 残り無料枠(本日): ' . $search->remainingToday() . " クエリ\n";
+$provider = (string) config('ai.search_provider', 'gemini');
+$remaining = static fn (): int => $provider === 'cse' ? $search->remainingToday() : $gemini->groundingRemainingToday();
+echo "[start] 発見プロバイダ: {$provider} / 本日の残り検索枠: " . $remaining() . "\n";
 
 // 対象: クチコミ数の多い順(価値の高いページから)。処理済み・スキップ済みは除外
 $targets = [];
@@ -73,8 +75,8 @@ if ($onlyHotel !== '') {
 $done = 0;
 foreach ($targets as $no) {
     if ($done >= $limit) { break; }
-    if ($search->remainingToday() <= 0) {
-        echo "[stop] 本日の検索無料枠を使い切りました。明日続きから再開できます\n";
+    if ($remaining() <= 0) {
+        echo "[stop] 本日の検索枠を使い切りました。明日続きから再開できます\n";
         break;
     }
 

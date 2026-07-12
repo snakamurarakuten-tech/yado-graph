@@ -28,10 +28,38 @@ final class OfficialSiteFinder
     ];
 
     private CustomSearchClient $search;
+    private GeminiClient $gemini;
 
-    public function __construct(?CustomSearchClient $search = null)
+    public function __construct(?CustomSearchClient $search = null, ?GeminiClient $gemini = null)
     {
         $this->search = $search ?? new CustomSearchClient();
+        $this->gemini = $gemini ?? new GeminiClient();
+    }
+
+    /**
+     * URL候補の発見。プロバイダは env SEARCH_PROVIDER で切替:
+     *  - gemini(既定): Gemini検索グラウンディングでURL候補を取得
+     *    ※ Custom Search JSON API が新規顧客に閉鎖されたための代替。
+     *      グラウンディングは「発見」のみに使い、本文はここで返さない
+     *  - cse: 従来の Custom Search JSON API(閉鎖前からアクセスがあるアカウント用)
+     *
+     * @return array<int,string> URL候補(優先順)
+     */
+    private function discoverCandidates(string $name, string $city, string $pref): array
+    {
+        if ((string) config('ai.search_provider', 'gemini') === 'cse') {
+            $results = $this->search->search("{$name} {$city} 公式サイト", 6);
+            return array_values(array_filter(array_map(
+                static fn (array $r): string => (string) ($r['link'] ?? ''),
+                $results
+            )));
+        }
+        $res = $this->gemini->generateGrounded(
+            "{$pref}{$city}にある宿泊施設「{$name}」の公式サイト(施設自身が運営するホームページ)のトップページURLを調べてください。" .
+            '予約サイト(楽天トラベル・じゃらん・一休・Booking.com等)やSNS、まとめサイトは公式サイトではありません。' .
+            "見つかった場合はそのURLを、公式サイトが存在しない・確信が持てない場合は「不明」とだけ答えてください。"
+        );
+        return $res !== null ? $res['links'] : [];
     }
 
     /**
@@ -50,20 +78,31 @@ final class OfficialSiteFinder
         }
         $city = \App\Services\Storage\HotelRepository::cityFromAddress($address, $pref);
 
-        // 1) 検索(市区町村を入れて同名宿と区別)
-        $results = $this->search->search("{$name} {$city} 公式サイト", 6);
-        foreach ($results as $r) {
-            $url = $r['link'];
+        // 1) URL候補の発見(Geminiグラウンディング or CSE)
+        $candidates = array_slice($this->discoverCandidates($name, $city, $pref), 0, 6);
+        foreach ($candidates as $url) {
             $host = strtolower((string) (parse_url($url, PHP_URL_HOST) ?: ''));
-            if ($host === '' || $this->isExcludedHost($host)) {
+            if ($host === '') {
+                continue;
+            }
+            // グラウンディングのURLはGoogleのリダイレクトプロキシ経由のことがあるため、
+            // 除外判定は「取得後の最終URL」で行う(プロキシ自体は素通しする)
+            $isProxy = str_contains($host, 'vertexaisearch') || str_contains($host, 'grounding-api');
+            if (!$isProxy && $this->isExcludedHost($host)) {
                 continue;
             }
 
-            // 2) ページ取得
-            $html = $this->fetch($url);
-            if ($html === null) {
+            // 2) ページ取得(リダイレクトを解決し、最終URLで再度除外判定)
+            $fetched = $this->fetch($url);
+            if ($fetched === null) {
                 continue;
             }
+            [$html, $finalUrl] = $fetched;
+            $finalHost = strtolower((string) (parse_url($finalUrl, PHP_URL_HOST) ?: ''));
+            if ($finalHost === '' || $this->isExcludedHost($finalHost)) {
+                continue;
+            }
+            $url = $finalUrl;
             $text = $this->htmlToText($html);
             if (mb_strlen($text) < 300) {
                 continue; // 中身が薄すぎる(パーキングページ等)
@@ -94,23 +133,25 @@ final class OfficialSiteFinder
         return false;
     }
 
-    private function fetch(string $url): ?string
+    /** @return ?array{0:string,1:string} [HTML, リダイレクト解決後の最終URL] */
+    private function fetch(string $url): ?array
     {
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS      => 4,
+            CURLOPT_MAXREDIRS      => 5,
             CURLOPT_TIMEOUT        => 20,
             CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; YadoGraphBot/1.0)',
         ]);
         $res = curl_exec($ch);
         $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $finalUrl = (string) curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
         curl_close($ch);
         if (!is_string($res) || $code >= 400 || strlen($res) > 3_000_000) {
             return null;
         }
-        return $res;
+        return [$res, $finalUrl !== '' ? $finalUrl : $url];
     }
 
     /** HTML → プレーンテキスト(script/style除去・タグ除去・空白圧縮)。 */

@@ -71,6 +71,10 @@ return [
         'cse_key'        => (string) Env::get('GOOGLE_CSE_KEY', ''),
         'cse_cx'         => (string) Env::get('GOOGLE_CSE_CX', ''),
         'notify_email'   => (string) Env::get('NOTIFY_EMAIL', ''),
+        // 公式サイトURLの発見手段。'gemini'(既定)=検索グラウンディング /
+        // 'cse'=Custom Search JSON API(新規顧客に閉鎖済み。旧アカウント用)
+        'search_provider'    => (string) Env::get('SEARCH_PROVIDER', 'gemini'),
+        'grounding_daily_cap'=> (int) Env::get('GROUNDING_DAILY_CAP', 100),
     ],
 
     // 特集の自動生成テーマプール(月別・bin/generate-feature.php --auto が使用)

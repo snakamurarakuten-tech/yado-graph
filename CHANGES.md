@@ -287,3 +287,16 @@ Render揮発FS対策として生成物はDBではなくリポジトリ内 conten
 - docs/MIGRATION-mixhost.md: 契約直後の設定/配置(docroot→public推奨と代替)/
   .env/初期シード/cron3本/DNS切替/Search Console/運用保守/改善ロードマップ
 - bin/deploy.sh: git pull + CSS結合 + 全PHP構文チェックの一発デプロイ
+
+## 公式サイト発見をGeminiグラウンディングへ移行(CSE新規閉鎖対応)
+- 背景: Custom Search JSON API は新規顧客へのアクセス付与を終了しており、
+  新規プロジェクトでは有効化・キー・CXが正しくても 403 PERMISSION_DENIED になる
+  (既存顧客も2027年1月までの移行が案内されている)
+- 対応: 「この宿のこだわり」のURL発見ステップを Gemini の検索グラウンディングに変更
+  (SEARCH_PROVIDER=gemini 既定 / 旧アカウントは =cse で従来動作)
+- 安全設計は不変: グラウンディングは「URL候補の発見」のみに使用し、記事本文は
+  自前で取得・住所照合済みの公式HP本文から検索なしの通常生成で書く。
+  リダイレクトプロキシURLは取得後の最終URLで除外判定・検証を実施
+- 無料枠保護: グラウンディングにも日次カウンター(GROUNDING_DAILY_CAP・既定100)
+- GeminiClient::generateGrounded()/parseGrounded()(単体テスト済み)、
+  GOOGLE_CSE_KEY/CX は不要に(レガシー用に残置)
