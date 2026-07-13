@@ -104,12 +104,57 @@ if ($doAll || $has('--enumerate')) {
     logline("列挙完了。保存(延べ): {$saved} / 除外: {$skipped} / ユニーク: " . $repo->count());
 }
 
+/* ---------- 1b) エリア総当たり列挙(初期投入用。テーマキーワードに縛られず全国をカバー) ----------
+ * --enumerate とは独立したオプション(--all には連動させない=日次cronは今まで通り軽いまま)。
+ * 初回の情報投入時など、意図的に広く取り込みたいときだけ明示的に付けて使う。
+ *   php bin/fetch-hotels.php --enumerate-area --area-pages=3
+ */
+if ($has('--enumerate-area')) {
+    $areaSearch = new \App\Services\Rakuten\AreaHotelSearchService();
+    $filter = new \App\Services\HotelFilterService();
+    logline('エリア一覧を取得中(GetAreaClass)...');
+    $areas = (new \App\Services\Rakuten\AreaClassService())->allSmallAreas();
+    rate();
+    logline('エリア一覧取得: ' . count($areas) . ' 件(都道府県×市区町村×小エリア)');
+    if (count($areas) === 0) {
+        logline('WARN: エリアが0件でした。AreaClassService のレスポンス形状を確認してください(実JSONダンプ推奨)');
+    }
+
+    $maxPage = (int) $opt('area-pages', 3); // 小エリアあたり取得ページ数
+    $saved = 0;
+    $skipped = 0;
+    foreach ($areas as $i => $a) {
+        for ($page = 1; $page <= $maxPage; $page++) {
+            $cards = $areaSearch->search($a['large'], $a['middle'], $a['small'], ['hits' => 30, 'page' => $page]);
+            rate();
+            if ($cards === []) {
+                break;
+            }
+            foreach ($cards as $card) {
+                if (!$filter->isEligible($card)) {
+                    $skipped++;
+                    continue;
+                }
+                $repo->upsert($card);
+                $saved++;
+            }
+        }
+        if (($i + 1) % 20 === 0) {
+            logline('エリア列挙: ' . ($i + 1) . '/' . count($areas) . " エリア済み(累計保存 {$saved})");
+        }
+    }
+    logline("エリア列挙完了。保存(延べ): {$saved} / 除外: {$skipped} / ユニーク: " . $repo->count());
+}
+
 /* ---------- 2) 詳細化(1件ずつ HotelDetailSearch で6軸評価・設備・全画像を付与) ---------- */
 if ($doAll || $has('--detail')) {
     $detail = new HotelDetailService();
     $extractor = new HotelExtractor();
     $surroundings = new \App\Services\SurroundingsService();
     $limit = (int) $opt('limit', 300);
+    if ($limit <= 0) {
+        $limit = PHP_INT_MAX; // 0 または未指定の負値は「無制限」扱い(初期投入向け)
+    }
 
     // 改修1-3: 詳細ページが積んだ再取得キュー(古いデータの宿)を最優先で処理
     $queueFile = BASE_PATH . '/storage/db/refresh-queue.txt';
@@ -122,13 +167,26 @@ if ($doAll || $has('--detail')) {
         }
     }
 
-    // キュー → fetchedAt が古い順 の順序で処理
+    // キュー → 未詳細化(新規・bathTypeキー無し)を優先 → 詳細化済みは fetchedAt が古い順
+    // (旧ロジックは fetchedAt 昇順のみだったため、新しく列挙されたばかりの宿(fetchedAtが直近)が
+    //  既存の詳細化済み宿(fetchedAtが古い)より後回しになっていた。網羅目的の初期投入では逆効果なので修正)
     $pdo = \App\Support\Database::pdo();
-    $rows = $pdo->query('SELECT hotelNo FROM hotels ORDER BY fetchedAt ASC')->fetchAll();
-    $targets = array_values(array_unique(array_merge(
-        $queued,
-        array_map(static fn ($r) => (string) $r['hotelNo'], $rows)
-    )));
+    $rows = $pdo->query('SELECT hotelNo, data, fetchedAt FROM hotels ORDER BY fetchedAt ASC')->fetchAll();
+    $neverDetailed = [];
+    $staleDetailed = [];
+    foreach ($rows as $r) {
+        $d = json_decode((string) $r['data'], true);
+        $isDetailed = is_array($d) && array_key_exists('bathType', $d);
+        if ($isDetailed) {
+            $staleDetailed[] = (string) $r['hotelNo'];
+        } else {
+            $neverDetailed[] = (string) $r['hotelNo'];
+        }
+    }
+    if ($neverDetailed !== []) {
+        logline('未詳細化(新規)の宿: ' . count($neverDetailed) . ' 件を優先詳細化');
+    }
+    $targets = array_values(array_unique(array_merge($queued, $neverDetailed, $staleDetailed)));
 
     $count = 0;
     foreach ($targets as $no) {
