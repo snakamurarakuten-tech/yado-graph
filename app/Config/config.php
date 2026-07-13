@@ -86,6 +86,8 @@ return [
     'hotel_filters' => require __DIR__ . '/hotel_filters.php',
     // 温泉地ガイド辞書(増強①: 詳細ページの「◯◯温泉について」)
     'onsen_areas' => require __DIR__ . '/onsen_areas.php',
+    // 楽天都道府県コード(GetAreaClass非対応時のエリア列挙フォールバック)
+    'rakuten_prefectures' => require __DIR__ . '/rakuten_prefectures.php',
     // カテゴリ辞書・価格帯(P1)
     'categories' => require __DIR__ . '/categories.php',
 

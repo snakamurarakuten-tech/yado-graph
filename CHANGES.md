@@ -335,3 +335,17 @@ Render揮発FS対策として生成物はDBではなくリポジトリ内 conten
   楽天API上限(page100×hits30=1エリア最大3,000件)まで取り切る
 - 30件未満を検知したら即次エリアへ(無駄打ちなし)。--area-pages 指定時は従来通り頭打ち
 - docs に「fullでも全部は取れない」の構造的理由(API上限・楽天未掲載)を明記
+
+## 楽天API新仕様(2026年2月刷新)対応の明文化
+- .env.example に RAKUTEN_ACCESS_KEY(pk_形式)を追記。新APIは applicationId(UUID)と
+  accessKey の両方が必須で、「許可されたWebサイト」にAPP_URLのドメイン登録も必要
+- コード(RakutenApiClient/config)は openapi.rakuten.co.jp/engine/api・accessKey・
+  Origin/Referer 送信に対応済み。運用時は .env に両キーの設定を忘れないこと
+
+## GetAreaClass非対応への対応(都道府県フォールバック)
+- 新API(2026刷新)でGetAreaClassが "API Configuration not found" になるアプリ設定でも
+  全件取得できるよう、47都道府県の固定コード辞書(rakuten_prefectures.php)を追加
+- AreaClassService: GetAreaClassが空を返したら都道府県辞書に自動フォールバック
+  (SimpleHotelSearchは都道府県単位で最大3,000件返せるため全国網羅可能)
+- AreaHotelSearchService: smallClassCode 空なら省略し県単位検索に対応
+- SimpleHotelSearch(宿検索)自体は新API仕様で正常動作を確認済み

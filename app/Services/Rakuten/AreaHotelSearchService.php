@@ -29,10 +29,14 @@ final class AreaHotelSearchService
         $params = [
             'largeClassCode'  => $largeClassCode,
             'middleClassCode' => $middleClassCode,
-            'smallClassCode'  => $smallClassCode,
             'hits'            => $hits,
             'page'            => $page,
         ];
+        // smallClassCode は指定時のみ付与(空=県単位で全宿検索。
+        // GetAreaClass 非対応時の都道府県フォールバックで使う)
+        if ($smallClassCode !== '') {
+            $params['smallClassCode'] = $smallClassCode;
+        }
         $response = $this->client->get('simple_search', $params);
         return HotelResponseNormalizer::toCards($response);
     }

@@ -46,6 +46,21 @@ final class AreaClassService
             $seen[$key] = true;
             $unique[] = $a;
         }
+
+        // GetAreaClass が使えない(新API刷新でアプリ未対応=API Configuration not found)
+        // 場合は空になる。その際は47都道府県の固定辞書にフォールバックする。
+        // SimpleHotelSearch は middleClassCode(都道府県)だけで最大3,000件返せるため、
+        // small を空にして県単位で総当たりすれば全国を網羅できる。
+        if ($unique === []) {
+            foreach ((array) config('rakuten_prefectures', []) as $pref) {
+                $unique[] = [
+                    'large'  => 'japan',
+                    'middle' => (string) $pref['middle'],
+                    'small'  => '', // 県単位検索(smallClassCode省略)
+                    'label'  => (string) $pref['name'],
+                ];
+            }
+        }
         return $unique;
     }
 
