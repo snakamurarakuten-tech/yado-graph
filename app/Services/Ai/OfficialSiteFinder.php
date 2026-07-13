@@ -80,6 +80,7 @@ final class OfficialSiteFinder
 
         // 1) URL候補の発見(Geminiグラウンディング or CSE)
         $candidates = array_slice($this->discoverCandidates($name, $city, $pref), 0, 6);
+        $log('候補 ' . count($candidates) . '件: ' . implode(' | ', array_map(static fn ($u) => mb_substr($u, 0, 60), $candidates)));
         foreach ($candidates as $url) {
             $host = strtolower((string) (parse_url($url, PHP_URL_HOST) ?: ''));
             if ($host === '') {
@@ -89,35 +90,56 @@ final class OfficialSiteFinder
             // 除外判定は「取得後の最終URL」で行う(プロキシ自体は素通しする)
             $isProxy = str_contains($host, 'vertexaisearch') || str_contains($host, 'grounding-api');
             if (!$isProxy && $this->isExcludedHost($host)) {
+                $log("除外ドメイン: {$host}");
                 continue;
             }
 
             // 2) ページ取得(リダイレクトを解決し、最終URLで再度除外判定)
             $fetched = $this->fetch($url);
             if ($fetched === null) {
+                $log('取得失敗: ' . mb_substr($url, 0, 60));
                 continue;
             }
             [$html, $finalUrl] = $fetched;
             $finalHost = strtolower((string) (parse_url($finalUrl, PHP_URL_HOST) ?: ''));
             if ($finalHost === '' || $this->isExcludedHost($finalHost)) {
+                $log("最終URLが除外ドメイン: {$finalHost}");
                 continue;
             }
             $url = $finalUrl;
             $text = $this->htmlToText($html);
             if (mb_strlen($text) < 300) {
+                $log("本文が薄すぎる({$finalHost}: " . mb_strlen($text) . '字)');
                 continue; // 中身が薄すぎる(パーキングページ等)
             }
 
-            // 3) 宿名 + 市区町村の照合(正規化して比較)
+            // 3) 宿名 + 市区町村の照合(正規化して比較)。
+            //    楽天の宿名は「下呂温泉　水明館」のように地名接頭辞つきが多く、
+            //    公式サイトに連続表記されているとは限らないため、
+            //    フルネームに加えて「宿名本体(最後の空白区切りトークン)」でも照合する。
+            //    誤爆は市区町村照合との二重チェックで防ぐ。
             $normPage = InstagramService::normalizeTag($text);
-            $normName = InstagramService::normalizeTag($name);
-            if ($normName === '' || mb_strpos($normPage, $normName) === false) {
+            $variants = [];
+            $full = InstagramService::normalizeTag($name);
+            if ($full !== '') { $variants[] = $full; }
+            $tokens = preg_split('/[\s　\/【】\[\]()()]+/u', $name) ?: [];
+            $last = InstagramService::normalizeTag((string) end($tokens));
+            if (mb_strlen($last) >= 3 && !in_array($last, $variants, true)) { $variants[] = $last; }
+
+            $nameHit = false;
+            foreach ($variants as $v) {
+                if (mb_strpos($normPage, $v) !== false) { $nameHit = true; break; }
+            }
+            if (!$nameHit) {
+                $log("宿名不一致({$finalHost}): 試行=" . implode(',', $variants));
                 continue;
             }
             if ($city !== '' && mb_strpos($text, $city) === false) {
+                $log("市区町村不一致({$finalHost}): {$city} がページ内にない");
                 continue;
             }
 
+            $log("検証OK: {$url}");
             return ['url' => $url, 'text' => mb_substr($text, 0, 9000)];
         }
         return null;

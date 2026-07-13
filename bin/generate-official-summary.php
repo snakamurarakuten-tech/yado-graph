@@ -86,7 +86,7 @@ foreach ($targets as $no) {
     echo "--- [{$no}] {$name}\n";
 
     // 1) 公式HP発見+検証
-    $site = $finder->findVerified($hotel);
+    $site = $finder->findVerified($hotel, $onlyHotel !== '');
     if ($site === null) {
         echo "    skip: 公式HPを検証できず(書かない)\n";
         $state[$no] = 'no_verified_site';
