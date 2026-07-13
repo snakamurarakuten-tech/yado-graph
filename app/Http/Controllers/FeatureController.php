@@ -65,7 +65,10 @@ final class FeatureController
         }
 
         $base = rtrim((string) config('app.url'), '/');
+        $ageDays = ($f['publishedAt'] ?? '') !== '' ? (time() - (int) strtotime((string) $f['publishedAt'])) / 86400 : 0;
         View::render('features/show', [
+            'isStale' => $ageDays > 180, // 半年超の特集は「情報が古い可能性」を表示
+
             'f'       => $f,
             'entries' => $entries,
             'seo' => [

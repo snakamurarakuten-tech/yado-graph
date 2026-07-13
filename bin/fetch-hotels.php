@@ -7,7 +7,8 @@ declare(strict_types=1);
  * 使い方:
  *   php bin/fetch-hotels.php --enumerate           # カテゴリ横断で宿を列挙し軽量レコードを保存
  *   php bin/fetch-hotels.php --detail [--limit=500] # 各宿を HotelDetailSearch で詳細化(6軸評価・設備・周辺・全画像)
- *   php bin/fetch-hotels.php --all                  # enumerate → detail を通しで
+ *   php bin/fetch-hotels.php --all                  # enumerate(カテゴリ) → detail を通しで(日次向け・軽い)
+ *   php bin/fetch-hotels.php --full [--area-pages=3] # エリア総当たり列挙 → detail → purge(初回全件取得向け・重い)
  *
  * 楽天の制限(1 application_id につき 1秒1リクエスト以下)を守るため、
  * すべてのAPI呼び出しの間に sleep(1.1秒) を入れている。
@@ -28,6 +29,13 @@ if (is_file(BASE_PATH . '/.env')) {
     \App\Support\Env::load(BASE_PATH . '/.env');
 }
 \App\Support\Config::init(require BASE_PATH . '/app/Config/config.php');
+
+// 多重起動防止(cronの実行が前回分と重なった場合は静かに終了)
+$__lock = \App\Support\Lock::acquire('fetch-hotels');
+if ($__lock === null) {
+    fwrite(STDERR, "[skip] fetch-hotels は既に実行中のため終了します\n");
+    exit(0);
+}
 
 use App\Services\CategoryService;
 use App\Services\Rakuten\HotelDetailService;
@@ -67,6 +75,9 @@ $repo->migrate();
 logline('DB migrated. 現在の件数: ' . $repo->count());
 
 $doAll = $has('--all');
+// --full: 初回の全件取得用。エリア総当たり列挙 → 詳細化 → パージ を通しで実行。
+//         --all(カテゴリ列挙・日次向けの軽い網羅)より広く、楽天の全国の宿を拾う。
+$doFull = $has('--full');
 
 /* ---------- 1) 列挙(カテゴリ横断で宿を集めて軽量保存) ---------- */
 if ($doAll || $has('--enumerate')) {
@@ -109,7 +120,7 @@ if ($doAll || $has('--enumerate')) {
  * 初回の情報投入時など、意図的に広く取り込みたいときだけ明示的に付けて使う。
  *   php bin/fetch-hotels.php --enumerate-area --area-pages=3
  */
-if ($has('--enumerate-area')) {
+if ($doFull || $has('--enumerate-area')) {
     $areaSearch = new \App\Services\Rakuten\AreaHotelSearchService();
     $filter = new \App\Services\HotelFilterService();
     logline('エリア一覧を取得中(GetAreaClass)...');
@@ -120,7 +131,12 @@ if ($has('--enumerate-area')) {
         logline('WARN: エリアが0件でした。AreaClassService のレスポンス形状を確認してください(実JSONダンプ推奨)');
     }
 
-    $maxPage = (int) $opt('area-pages', 3); // 小エリアあたり取得ページ数
+    // --area-pages 未指定(0)なら「各エリアの最終ページまで自動追尾」。
+    // 楽天APIの page 上限100・hits30 により1エリア最大3,000件まで取得できる。
+    // 数値指定時はそのページ数で頭打ち(お試し・時短用)。
+    $maxPageOpt = (int) $opt('area-pages', 0);
+    $hardPageCap = 100; // 楽天APIのpage上限(これ以上は取得不可)
+    $maxPage = $maxPageOpt > 0 ? min($maxPageOpt, $hardPageCap) : $hardPageCap;
     $saved = 0;
     $skipped = 0;
     foreach ($areas as $i => $a) {
@@ -138,6 +154,10 @@ if ($has('--enumerate-area')) {
                 $repo->upsert($card);
                 $saved++;
             }
+            // 30件未満=最終ページに到達(次ページは無い)。無駄打ちを避けて次エリアへ
+            if (count($cards) < 30) {
+                break;
+            }
         }
         if (($i + 1) % 20 === 0) {
             logline('エリア列挙: ' . ($i + 1) . '/' . count($areas) . " エリア済み(累計保存 {$saved})");
@@ -147,7 +167,7 @@ if ($has('--enumerate-area')) {
 }
 
 /* ---------- 2) 詳細化(1件ずつ HotelDetailSearch で6軸評価・設備・全画像を付与) ---------- */
-if ($doAll || $has('--detail')) {
+if ($doAll || $doFull || $has('--detail')) {
     $detail = new HotelDetailService();
     $extractor = new HotelExtractor();
     $surroundings = new \App\Services\SurroundingsService();
@@ -230,7 +250,7 @@ if ($doAll || $has('--detail')) {
 }
 
 /* ---------- 3) パージ(掲載条件を満たさなくなった宿の削除・メモ2/3) ---------- */
-if ($doAll || $has('--purge')) {
+if ($doAll || $doFull || $has('--purge')) {
     $purged = $repo->purgeIneligible(new \App\Services\HotelFilterService());
     if ($purged > 0) {
         logline("purge: {$purged} 件を掲載対象外として削除");

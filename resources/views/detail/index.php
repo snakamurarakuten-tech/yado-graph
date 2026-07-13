@@ -507,20 +507,34 @@ $hasAxis = !empty($hotel['axis']);
     <div class="rail-track" data-recent-track></div>
   </section>
 
-  <?php // === 12. 旅をもっと楽しむ(全旅館共通の静的リンク) === ?>
-  <section class="block reveal enjoy-more" style="border-bottom:none;">
-    <h2 class="section-title"><span class="bar"></span>旅をもっと楽しむ</h2>
-    <div class="xsell">
-      <h3>レンタカーで足をのばす</h3>
-      <p>周辺の観光や、駅から離れた宿へのアクセスに。</p>
-      <a class="btn-secondary" href="<?= e($xsell['rentacar_url']) ?>" target="_blank" rel="sponsored nofollow noopener">レンタカーを探す</a>
-    </div>
-    <div class="xsell">
-      <h3>合宿免許で長期滞在</h3>
-      <p>免許取得の合宿プランをお探しの方へ。</p>
-      <a class="btn-secondary" href="<?= e($xsell['gasshuku_url']) ?>" target="_blank" rel="sponsored nofollow noopener">合宿免許を探す</a>
-    </div>
-  </section>
+  <?php // === 12. 旅をもっと楽しむ(アフィリンク設定済みの項目のみ表示) === ?>
+  <?php
+  // 免許合宿・レンタカーはコンテンツ・提携リンク未整備のため、
+  // env に有効なURLが入っている項目だけ出す(未設定=セクションごと非表示)。
+  $rentacarUrl = (string) ($xsell['rentacar_url'] ?? '');
+  $gasshukuUrl = (string) ($xsell['gasshuku_url'] ?? '');
+  $showRentacar = $rentacarUrl !== '' && $rentacarUrl !== '#';
+  $showGasshuku = $gasshukuUrl !== '' && $gasshukuUrl !== '#';
+  ?>
+  <?php if ($showRentacar || $showGasshuku): ?>
+    <section class="block reveal enjoy-more" style="border-bottom:none;">
+      <h2 class="section-title"><span class="bar"></span>旅をもっと楽しむ</h2>
+      <?php if ($showRentacar): ?>
+        <div class="xsell">
+          <h3>レンタカーで足をのばす</h3>
+          <p>周辺の観光や、駅から離れた宿へのアクセスに。</p>
+          <a class="btn-secondary" href="<?= e($rentacarUrl) ?>" target="_blank" rel="sponsored nofollow noopener">レンタカーを探す</a>
+        </div>
+      <?php endif; ?>
+      <?php if ($showGasshuku): ?>
+        <div class="xsell">
+          <h3>合宿免許で長期滞在</h3>
+          <p>免許取得の合宿プランをお探しの方へ。</p>
+          <a class="btn-secondary" href="<?= e($gasshukuUrl) ?>" target="_blank" rel="sponsored nofollow noopener">合宿免許を探す</a>
+        </div>
+      <?php endif; ?>
+    </section>
+  <?php endif; ?>
 
   <?php component('site-footer'); ?>
 

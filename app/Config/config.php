@@ -56,7 +56,7 @@ return [
 
     // クロスセル(別アフィリエイト)。URLは全旅館共通の静的リンク
     'xsell' => [
-        'rentacar_url' => (string) Env::get('RENTACAR_AFFILIATE_URL', 'https://travel.rakuten.co.jp/cars/'),
+        'rentacar_url' => (string) Env::get('RENTACAR_AFFILIATE_URL', '#'), // 未整備のため既定で非表示
         'gasshuku_url' => (string) Env::get('GASSHUKU_AFFILIATE_URL', '#'),
     ],
 

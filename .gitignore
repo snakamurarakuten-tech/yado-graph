@@ -6,3 +6,4 @@
 !/storage/cache/.gitignore
 /vendor/
 /public/assets/css/app.css
+/storage/locks/*.lock

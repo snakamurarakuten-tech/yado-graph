@@ -28,6 +28,13 @@ spl_autoload_register(function (string $c): void {
 if (is_file(BASE_PATH . '/.env')) { \App\Support\Env::load(BASE_PATH . '/.env'); }
 \App\Support\Config::init(require BASE_PATH . '/app/Config/config.php');
 
+// 多重起動防止(cronの実行が前回分と重なった場合は静かに終了)
+$__lock = \App\Support\Lock::acquire('weekly-content');
+if ($__lock === null) {
+    fwrite(STDERR, "[skip] weekly-content は既に実行中のため終了します\n");
+    exit(0);
+}
+
 $officialLimit = max(0, (int) (getenv('OFFICIAL_LIMIT') ?: 25));
 $php = PHP_BINARY;
 $summary = [];

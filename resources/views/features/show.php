@@ -16,7 +16,8 @@
 </div>
 
 <p class="feature-lead-full"><?= e((string) $f['lead']) ?></p>
-<p class="feature-note">※ 掲載データと各宿の公開情報をもとに編集部が構成しています。</p>
+<p class="feature-note">※ 掲載データと各宿の公開情報をもとに編集部が構成しています。評価・クチコミ数は最新のデータを表示しています。</p>
+<?php if (!empty($isStale)): ?><p class="feature-stale">この特集は公開から時間が経過しています。最新の空室・料金は各宿のページでご確認ください。</p><?php endif; ?>
 
 <div class="feature-entries">
   <?php foreach ($entries as $i => $e2): $c = $e2['card']; ?>

@@ -30,6 +30,13 @@ spl_autoload_register(function (string $c): void {
 if (is_file(BASE_PATH . '/.env')) { \App\Support\Env::load(BASE_PATH . '/.env'); }
 \App\Support\Config::init(require BASE_PATH . '/app/Config/config.php');
 
+// 多重起動防止(cronの実行が前回分と重なった場合は静かに終了)
+$__lock = \App\Support\Lock::acquire('official-summary');
+if ($__lock === null) {
+    fwrite(STDERR, "[skip] official-summary は既に実行中のため終了します\n");
+    exit(0);
+}
+
 use App\Services\Ai\AiOutputValidator;
 use App\Services\Ai\CustomSearchClient;
 use App\Services\Ai\GeminiClient;
@@ -59,16 +66,47 @@ $provider = (string) config('ai.search_provider', 'gemini');
 $remaining = static fn (): int => $provider === 'cse' ? $search->remainingToday() : $gemini->groundingRemainingToday();
 echo "[start] 発見プロバイダ: {$provider} / 本日の残り検索枠: " . $remaining() . "\n";
 
-// 対象: クチコミ数の多い順(価値の高いページから)。処理済み・スキップ済みは除外
+// 対象選定(クチコミ数の多い順=価値の高いページから)。
+//  - 未挑戦: 最優先
+//  - 過去に失敗(no_verified_site等): RETRY_COOLDOWN_DAYS 経過かつ RETRY_MAX 未満なら再挑戦(指摘5)
+//  - 生成済み: REFRESH_DAYS 経過していれば公式HPを取り直して記事を更新(指摘6)
+$retryCooldownDays = max(1, (int) (getenv('OFFICIAL_RETRY_COOLDOWN_DAYS') ?: 30));
+$retryMax          = max(1, (int) (getenv('OFFICIAL_RETRY_MAX') ?: 3));
+$refreshDays       = max(0, (int) (getenv('OFFICIAL_REFRESH_DAYS') ?: 0)); // 0=リフレッシュ無効
+$nowTs = time();
+$daysSince = static fn (string $ymd): float => $ymd === '' ? 9e9 : ($nowTs - (int) strtotime($ymd)) / 86400;
+
 $targets = [];
 if ($onlyHotel !== '') {
     $targets = [$onlyHotel];
 } else {
     foreach ($repo->search(['sort' => 'reviews', 'excludeNoReview' => true, 'perPage' => 500])['items'] as $c) {
         $no = (string) $c['hotelNo'];
-        if (!isset($state[$no]) && !is_file(BASE_PATH . "/content/official/{$no}.json")) {
-            $targets[] = $no;
+        $st = $state[$no] ?? null;
+
+        // 生成済み: リフレッシュ対象かだけ判定
+        if (is_file(BASE_PATH . "/content/official/{$no}.json")) {
+            if ($refreshDays > 0) {
+                $data = json_decode((string) file_get_contents(BASE_PATH . "/content/official/{$no}.json"), true);
+                if (is_array($data) && $daysSince((string) ($data['fetchedAt'] ?? '')) >= $refreshDays) {
+                    $targets[] = $no;
+                }
+            }
+            continue;
         }
+
+        // 未挑戦
+        if ($st === null) { $targets[] = $no; continue; }
+
+        // 過去に失敗 → クールダウン経過かつ試行上限未満なら再挑戦(指摘5)
+        if (is_array($st)) {
+            $attempts = (int) ($st['attempts'] ?? 1);
+            $lastAt   = (string) ($st['lastAt'] ?? '');
+            if ($attempts < $retryMax && $daysSince($lastAt) >= $retryCooldownDays) {
+                $targets[] = $no;
+            }
+        }
+        // 旧形式(文字列)の state はいったん確定失敗として扱い、次回の書き込みで新形式化される
     }
 }
 
@@ -81,7 +119,7 @@ foreach ($targets as $no) {
     }
 
     $hotel = $repo->find($no);
-    if ($hotel === null) { $state[$no] = 'not_in_db'; continue; }
+    if ($hotel === null) { $state[$no] = ['reason' => 'not_in_db', 'attempts' => 99, 'lastAt' => date('Y-m-d')]; continue; }
     $name = (string) $hotel['hotelName'];
     echo "--- [{$no}] {$name}\n";
 
@@ -99,8 +137,9 @@ foreach ($targets as $no) {
     }
     sleep(4); // 無料枠のRPM対策(発見コールと次のコールの間隔)
     if ($site === null) {
-        echo "    skip: 公式HPを検証できず(書かない)\n";
-        $state[$no] = 'no_verified_site';
+        $prevAttempts = (int) (($state[$no]['attempts'] ?? 0));
+        $state[$no] = ['reason' => 'no_verified_site', 'attempts' => $prevAttempts + 1, 'lastAt' => date('Y-m-d')];
+        echo "    skip: 公式HPを検証できず(書かない・試行{$state[$no]['attempts']}回目)\n";
         $saveState();
         continue;
     }
@@ -144,7 +183,7 @@ PROMPT;
     ));
     if ($json === null || $points === []) {
         echo "    skip: 生成失敗\n";
-        $state[$no] = 'generate_failed';
+        $state[$no] = ['reason' => 'generate_failed', 'attempts' => (int)(($state[$no]['attempts'] ?? 0)) + 1, 'lastAt' => date('Y-m-d')];
         $saveState();
         continue;
     }
@@ -155,7 +194,7 @@ PROMPT;
     $check = $validator->validate($joined, $site['text'] . ' ' . $facts);
     if (!$check['ok']) {
         echo "    skip: バリデーション不合格({$check['reason']})\n";
-        $state[$no] = 'validation:' . $check['reason'];
+        $state[$no] = ['reason' => 'validation:' . $check['reason'], 'attempts' => (int)(($state[$no]['attempts'] ?? 0)) + 1, 'lastAt' => date('Y-m-d')];
         $saveState();
         continue;
     }
@@ -176,7 +215,7 @@ PROMPT;
         BASE_PATH . "/content/official/{$no}.json",
         json_encode($out, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
     );
-    $state[$no] = 'ok';
+    unset($state[$no]); // 成功=生成物ファイルが真実。state からは除去
     $saveState();
     $done++;
     echo "    saved: content/official/{$no}.json\n";
