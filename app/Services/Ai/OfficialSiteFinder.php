@@ -54,12 +54,25 @@ final class OfficialSiteFinder
                 $results
             )));
         }
-        $res = $this->gemini->generateGrounded(
-            "{$pref}{$city}にある宿泊施設「{$name}」の公式サイト(施設自身が運営するホームページ)のトップページURLを調べてください。" .
-            '予約サイト(楽天トラベル・じゃらん・一休・Booking.com等)やSNS、まとめサイトは公式サイトではありません。' .
-            "見つかった場合はそのURLを、公式サイトが存在しない・確信が持てない場合は「不明」とだけ答えてください。"
-        );
-        return $res !== null ? $res['links'] : [];
+        try {
+            $res = $this->gemini->generateGrounded(
+                "{$pref}{$city}にある宿泊施設「{$name}」の公式サイト(施設自身が運営するホームページ)のトップページURLを調べてください。" .
+                '予約サイト(楽天トラベル・じゃらん・一休・Booking.com等)やSNS、まとめサイトは公式サイトではありません。' .
+                "見つかった場合はそのURLを、公式サイトが存在しない・確信が持てない場合は「不明」とだけ答えてください。"
+            );
+            return $res !== null ? $res['links'] : [];
+        } catch (AiQuotaException $e) {
+            // グラウンディング枠のみ切れた場合のフォールバック:
+            // モデルの知識からURL候補を出させる(検索なし=通常の生成枠)。
+            // 誤ったURLは後段の「取得→宿名+市区町村照合」で必ず弾かれるため安全。
+            fwrite(STDERR, "      [info] グラウンディング枠が上限のため知識ベース候補にフォールバック\n");
+            $json = $this->gemini->generateJson(
+                "{$pref}{$city}にある宿泊施設「{$name}」の公式サイトのURLを知っていれば、" .
+                '{"urls": ["https://..."]} のJSONで最大3件出力してください。確信がなければ {"urls": []} と出力。' .
+                '予約サイト(楽天トラベル・じゃらん等)のURLは含めないでください。'
+            );
+            return array_values(array_filter(array_map('strval', (array) ($json['urls'] ?? []))));
+        }
     }
 
     /**

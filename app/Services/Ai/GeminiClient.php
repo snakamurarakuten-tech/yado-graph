@@ -52,6 +52,9 @@ final class GeminiClient
         $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
 
+        if ($code === 429) {
+            throw new AiQuotaException('Gemini quota exceeded: ' . substr((string) $res, 0, 500));
+        }
         if (!is_string($res) || $code !== 200) {
             fwrite(STDERR, "Gemini API error (HTTP {$code}): " . substr((string) $res, 0, 300) . "\n");
             return null;
@@ -112,6 +115,9 @@ final class GeminiClient
         $res = curl_exec($ch);
         $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
+        if ($code === 429) {
+            throw new AiQuotaException('Gemini grounding quota exceeded: ' . substr((string) $res, 0, 500));
+        }
         if (!is_string($res) || $code !== 200) {
             fwrite(STDERR, "Gemini grounding error (HTTP {$code}): " . substr((string) $res, 0, 300) . "\n");
             return null;
