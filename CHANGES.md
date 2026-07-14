@@ -377,3 +377,24 @@ Render揮発FS対策として生成物はDBではなくリポジトリ内 conten
   (なめらかさは CSS の scroll-behavior が担当)
 - オンボーディング表示中は下部ナビ・CTA を非表示に(:has() + body.ob-active の二重化)。
   シート下部のボタンとナビが物理的に重なって押しづらい問題を解消
+
+## iPhoneでタブのジャンプが効かない問題を修正
+- 原因: .scroll-area の -webkit-overflow-scrolling:touch。iOS Safari は
+  この指定がある要素で scrollTop 代入やプログラム的スクロールを無視する
+  既知の挙動があり、タブをタップしても縦に動かなかった
+  (タブの色変更・横スクロールは動いていたため、JS自体は正常だった)
+- 対処: 同指定を削除(iOS 13以降は無くても慣性スクロールは効く)
+- top-tabs.js: scrollTo(smooth) → scrollTop代入 → scrollIntoView の
+  多段フォールバックにし、各段で実際に動いたか計測して次の手に切り替える
+
+## iOSスクロール不具合の真因と最終修正
+- 真因1: reset.css 末尾に `html,body{overflow-x:hidden;width:100%;}` の重複定義があり、
+  冒頭で指定した height:100%/overflow:hidden を後勝ちで打ち消していた → 定義を統合
+- 真因2: 一時的に入れた html/body の position:fixed が、iOSでアンカー移動
+  (#rail-xxx)もプログラムスクロールも壊していた → 撤回。height:100% + overflow:hidden
+  だけでバウンスは止まる
+- 真因3: .scroll-area の -webkit-overflow-scrolling:touch が iOS で scrollTop 代入を
+  無視させていた → 削除(iOS13以降は不要)
+- 高さの連鎖を html/body(100%) → .stage(100%) → .frame(100%) → .scroll-area(flex:1)
+  に統一。100vh/100dvh の混在をやめ、二重指定によるズレを解消
+- scroll-margin-top の重複定義(60px/64px)を 64px に統一

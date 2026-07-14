@@ -56,16 +56,34 @@ export function initSectionTabs() {
       const target = targetOf(tab);
       if (!target) return; // 対応レールが無ければ通常のアンカー挙動に任せる
       e.preventDefault();
+      setActive(tab.dataset.tab);
 
-      // scroller を基準にした target の相対位置を出す(offsetTop は
-      // position:relative な祖先基準になるため rect 差分で確実に取る)
+      // scroller を基準にした target の相対位置(rect 差分が最も確実)
       const sRect = scroller.getBoundingClientRect();
       const tRect = target.getBoundingClientRect();
       const tabsH = tabsEl ? tabsEl.offsetHeight : 0;
       const dest = Math.max(0, scroller.scrollTop + (tRect.top - sRect.top) - tabsH - 8);
+      const before = scroller.scrollTop;
+      if (Math.abs(dest - before) < 2) return; // 既にその位置
 
-      scroller.scrollTop = dest; // CSS の scroll-behavior:smooth でなめらかに動く
-      setActive(tab.dataset.tab);
+      // iOS Safari は scrollTop 代入・scrollTo(smooth)・scrollIntoView(smooth) の
+      // いずれも黙って無視することがある。確実に動かすため多段で試し、
+      // 各段で実際に動いたかを計測して次の手に切り替える。
+      const tryScroll = (fn, next) => {
+        const from = scroller.scrollTop;
+        try { fn(); } catch { /* 非対応環境は次の手へ */ }
+        setTimeout(() => {
+          if (Math.abs(scroller.scrollTop - from) < 2 && next) next();
+        }, 100);
+      };
+
+      tryScroll(
+        () => scroller.scrollTo({ top: dest, behavior: 'smooth' }),
+        () => tryScroll(
+          () => { scroller.scrollTop = dest; },                 // 即時代入
+          () => { target.scrollIntoView({ block: 'start' }); }, // 最終手段: ネイティブ
+        ),
+      );
     });
   });
 

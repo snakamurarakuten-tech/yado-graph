@@ -1,14 +1,16 @@
-.stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;background:var(--ink);}
+/* html,body が height:100%/overflow:hidden なので、stage もそれに揃える
+   (min-height:100vh のままだと body からはみ出した分が切れる) */
+.stage{height:100%;display:flex;justify-content:center;align-items:flex-start;background:var(--ink);}
 .frame{
   width:100%;max-width:430px;background:var(--paper);
   position:relative;overflow:hidden;
   display:flex;flex-direction:column;      /* スクロール領域＋下部メニューを縦積み */
-  height:100vh;height:100dvh;              /* モバイル: ビューポート高に固定 */
+  height:100%;                             /* 親(.stage=100%)に合わせる */
 }
 @media (min-width:640px) and (max-width:899px){
   .stage{padding:40px 16px;}
   .frame{
-    height:min(920px, calc(100vh - 80px));  /* タブレット縦: 端末フレーム風に高さ固定 */
+    height:min(920px, 100%);  /* タブレット縦: 端末フレーム風(親の余白ぶんは stage の padding) */
     border-radius:36px;box-shadow:var(--shadow-lift);border:8px solid #05060c;
   }
 }
@@ -17,7 +19,7 @@
 @media (min-width:900px){
   .stage{padding:0;background:var(--paper);align-items:stretch;}
   .frame{
-    max-width:1200px;height:100vh;height:100dvh;
+    max-width:1200px;height:100%;
     border:none;border-radius:0;box-shadow:none;margin:0 auto;
   }
 }
@@ -26,7 +28,10 @@
   flex:1 1 auto;min-height:0;
   overflow-y:auto;overflow-x:hidden;
   padding-bottom:24px;
-  -webkit-overflow-scrolling:touch;
+  /* 注: -webkit-overflow-scrolling:touch は付けない。
+     iOS Safari でこれが付いた要素は scrollTop の代入やプログラム的な
+     スクロールが無視されることがある(タブからのジャンプが効かなくなる)。
+     iOS 13以降は指定なしでも慣性スクロールは標準で効く。 */
   overscroll-behavior:contain;   /* 端まで来ても親(body)に連鎖させない */
   scroll-behavior:smooth;        /* タブからのジャンプをなめらかに(実スクロール要素はここ) */
 }

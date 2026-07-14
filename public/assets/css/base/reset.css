@@ -1,15 +1,14 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{background:var(--ink);}
-/* iOS Safari対策: body自体はスクロールさせない。
-   スクロールは .scroll-area だけが担当する(掴んだ場所に関わらず
-   ページ全体が引っ張られる「バウンス」を根本から止める)。 */
+/* iOS Safari対策: body自体はスクロールさせず、スクロールは .scroll-area だけが担当する。
+   position:fixed は使わない(iOSでアンカー移動やプログラムスクロールが壊れるため)。
+   height:100% + overflow:hidden だけで、掴んだ場所に関わらずページ全体が
+   引っ張られる「バウンス」は止まる。 */
 html,body{
   height:100%;
-  overflow:hidden;
-  overscroll-behavior:none;
-  position:fixed;
   width:100%;
-  top:0;left:0;
+  overflow:hidden;              /* 縦横とも body ではスクロールさせない */
+  overscroll-behavior:none;
 }
 body{
   font-family:var(--font-sans);
@@ -34,5 +33,6 @@ ul{list-style:none;}
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
 }
 
-/* スマホで画面全体が左右にパンする問題の防止(比較テーブル等のはみ出しをbodyに伝播させない) */
-html,body{overflow-x:hidden;width:100%;}
+/* 注: html,body の overflow / height はファイル冒頭で一括指定している。
+   ここで再定義すると(CSSは後勝ちのため)冒頭の height:100% / overflow:hidden が
+   打ち消され、iOSのバウンスやスクロール不具合が再発するので追加しないこと。 */

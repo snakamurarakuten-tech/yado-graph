@@ -23,5 +23,4 @@
 }
 .section-tab-all{color:var(--amber-deep);border-style:dashed;}
 
-/* タブからのジャンプ時、sticky タブ(約48px)に隠れないよう余白を確保 */
-[id^="rail-"]{scroll-margin-top:60px;}
+/* 注: レールの scroll-margin-top は brand.css で 64px を指定済み(重複定義しない) */
