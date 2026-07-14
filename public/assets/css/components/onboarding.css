@@ -8,7 +8,7 @@
 .onboarding.is-open{opacity:1;pointer-events:auto;}
 
 .onboarding-sheet{
-  width:100%;overflow-y:auto;
+  width:100%;overflow:hidden;
   /* iOSのURLバーで下が切れないよう dvh 基準に(非対応環境は % フォールバック) */
   max-height:88%;
   max-height:min(88dvh, calc(100% - 32px));
@@ -17,8 +17,11 @@
   padding:18px var(--gutter) calc(14px + var(--safe-b));
   transform:translateY(24px);transition:transform .32s var(--ease);
   box-shadow:0 -20px 60px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;   /* 見出し・スクロール領域・フッターを縦積み */
 }
 .onboarding.is-open .onboarding-sheet{transform:none;}
+/* 見出しとフッターは固定、グリッドだけスクロールさせる(ボタンが隠れないように) */
+.onboarding-scroll{overflow-y:auto;min-height:0;flex:1 1 auto;-webkit-overflow-scrolling:touch;}
 
 .onboarding-head .eyebrow{
   font-size:11px;letter-spacing:.18em;color:var(--amber-deep);text-transform:uppercase;margin-bottom:6px;
@@ -58,11 +61,11 @@
 }
 
 .onboarding-foot{
-  display:flex;align-items:center;gap:12px;margin-top:12px;
-  position:sticky;bottom:0;
-  padding:10px 0 2px;
+  display:flex;align-items:center;gap:12px;
+  flex:0 0 auto;                       /* 縮まない=常に見える */
+  padding:12px 0 2px;margin-top:8px;
+  border-top:1px solid var(--border-soft);
   background:var(--paper);
-  box-shadow:0 -14px 14px -8px var(--paper);
 }
 .ob-skip{
   background:transparent;border:none;color:var(--text-muted);font-size:13px;padding:12px 4px;

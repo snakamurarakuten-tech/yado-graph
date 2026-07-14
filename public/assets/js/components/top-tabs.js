@@ -47,35 +47,20 @@ export function initSectionTabs() {
   const tabEls = Array.from(tabsEl.querySelectorAll('.section-tab[data-tab]'));
   if (tabEls.length === 0) return;
 
-  // タップでスムーズスクロール(固定タブ高さぶん差し引く)
+  // タップでスムーズスクロール(固定タブ高さぶんは CSS scroll-margin-top で吸収)
   tabEls.forEach((tab) => {
     tab.addEventListener('click', (e) => {
       const target = targetOf(tab);
       if (!target) return; // 対応レールが無ければ通常のアンカー挙動に任せる
       e.preventDefault();
-      const scrollerRect = scroller.getBoundingClientRect
-        ? scroller.getBoundingClientRect()
-        : { top: 0 };
-      const targetRect = target.getBoundingClientRect();
-      const top = scroller.scrollTop + (targetRect.top - scrollerRect.top) - tabsEl.offsetHeight - 8;
-
-      if (!Number.isFinite(top)) {
+      // ネイティブ scrollIntoView が最も確実(scroller の実体差を吸収)。
+      // 固定タブに隠れないよう、対象側の scroll-margin-top で余白を確保している。
+      try {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        const dest = Math.max(0, top);
-        const before = scroller.scrollTop;
-        try {
-          scroller.scrollTo({ top: dest, behavior: 'smooth' });
-        } catch {
-          scroller.scrollTop = dest; // ScrollToOptions非対応(旧iOS Safari等)
-        }
-        // 旧iOS Safariは scrollTo(options) を「エラーも出さず無視」するため、
-        // 実際に動いたか計測して、動いていなければ直接 scrollTop を書く。
-        setTimeout(() => {
-          if (Math.abs(scroller.scrollTop - before) < 2 && Math.abs(dest - before) > 2) {
-            scroller.scrollTop = dest;
-          }
-        }, 80);
+      } catch {
+        // 超旧環境フォールバック: 手動計算
+        const top = (target.offsetTop || 0) - (tabsEl.offsetHeight + 8);
+        scroller.scrollTop = Math.max(0, top);
       }
       setActive(tab.dataset.tab);
     });

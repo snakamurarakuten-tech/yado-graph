@@ -43,3 +43,9 @@
   border:1px solid var(--border-soft);
 }
 .toast.show{opacity:1;}
+
+/* PC(タブレット横以上)では下部固定ナビを隠す。フッターナビとタブで代替。 */
+@media (min-width:900px){
+  .bottom-nav{display:none;}
+  .sticky-cta{max-width:1080px;margin-inline:auto;width:100%;}
+}

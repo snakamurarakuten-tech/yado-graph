@@ -5,16 +5,30 @@
   display:flex;flex-direction:column;      /* スクロール領域＋下部メニューを縦積み */
   height:100vh;height:100dvh;              /* モバイル: ビューポート高に固定 */
 }
-@media (min-width:640px){
+@media (min-width:640px) and (max-width:899px){
   .stage{padding:40px 16px;}
   .frame{
-    height:min(920px, calc(100vh - 80px));  /* デスクトップ: 端末フレーム風に高さ固定 */
+    height:min(920px, calc(100vh - 80px));  /* タブレット縦: 端末フレーム風に高さ固定 */
     border-radius:36px;box-shadow:var(--shadow-lift);border:8px solid #05060c;
+  }
+}
+/* タブレット・PC: スマホ枠をやめ、横幅を活かした通常レイアウトに切り替える。
+   レール(横スクロール棚)はそのまま活き、カードグリッドやヒーローが広がる。 */
+@media (min-width:900px){
+  .stage{padding:0;background:var(--paper);align-items:stretch;}
+  .frame{
+    max-width:1200px;height:100vh;height:100dvh;
+    border:none;border-radius:0;box-shadow:none;margin:0 auto;
   }
 }
 /* スクロールは内部だけ。下部メニューは常に最下部にピン留め(全ページ共通) */
 .scroll-area{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:24px;-webkit-overflow-scrolling:touch;}
 .wrap{padding:0 var(--gutter);}
+/* 広い画面では本文の可読幅を保ちつつ、コンテンツを中央寄せ */
+@media (min-width:900px){
+  .wrap{max-width:1080px;margin-inline:auto;}
+  .hero-scroller{height:min(66vh,560px);}
+}
 
 /* 改修5-3: 区切り罫線を廃止し、余白とsection-titleのみで分節(線疲れの軽減) */
 section.block{padding:calc(var(--section-y) + 6px) 0 var(--section-y);border-bottom:none;}

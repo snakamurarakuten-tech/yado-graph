@@ -1,7 +1,8 @@
-.hero{position:relative;background:var(--ink);}
+.hero{position:relative;background:var(--ink);overflow:hidden;}
 .hero-scroller{
   display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
   scrollbar-width:none;height:58vh;min-height:360px;
+  touch-action:pan-x;overscroll-behavior:contain;
 }
 .hero-scroller::-webkit-scrollbar{display:none;}
 .hero-slide{flex:0 0 100%;scroll-snap-align:start;position:relative;height:100%;}

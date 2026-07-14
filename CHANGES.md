@@ -349,3 +349,20 @@ Render揮発FS対策として生成物はDBではなくリポジトリ内 conten
   (SimpleHotelSearchは都道府県単位で最大3,000件返せるため全国網羅可能)
 - AreaHotelSearchService: smallClassCode 空なら省略し県単位検索に対応
 - SimpleHotelSearch(宿検索)自体は新API仕様で正常動作を確認済み
+
+## UI修正・レスポンシブ対応・SEO追加(最新)
+### 修正
+- 合宿免許・レンタカー: env に http(s) URLが設定された時のみ表示(現状は非表示)。
+  表示条件を str_starts_with('http') に堅牢化し、#やコメント混入でも誤表示しない
+- 楽天トラベルクレジット: user-select/touch-action:none で掴んで動く問題を解消。
+  ヒーローに overflow:hidden、hero-scroller に touch-action:pan-x で縦ドラッグ暴走を防止
+- トップのタブ: scrollIntoView + scroll-margin-top 方式に変更し確実にスクロール
+- オンボーディング: シートを flex 化し、グリッドだけスクロール・フッターボタン常時表示
+### PC/タブレット対応
+- 640-899px(タブレット縦)は端末フレーム風、900px以上は最大1200px幅の通常レイアウト
+- 900px以上で下部固定ナビを非表示(フッターナビ・上部タブで代替)、本文は最大1080px中央寄せ
+### SEO追加(リスクゼロ)
+- WebSite に SearchAction(sitelinks searchbox 狙い)、Organization 構造化データを追加
+- ※ Hotel の AggregateRating は従来通り不採用(セルフサービングレビュー・ポリシー配慮)
+### cron
+- docs に最新推奨cron構成を追記(日次は --enumerate-area で47都道府県フォールバック活用)

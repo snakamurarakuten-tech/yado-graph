@@ -179,3 +179,28 @@ php bin/db-status.php
 詳細化(--detail/--all/--full)の中で SurroundingsService が Overpass(OSM)から
 周辺スポットを取得する。ここは楽天ではなくOSMで、1秒sleepでレート順守済み。
 全件だと時間がかかる主因はここなので、初回は気長に(nohup推奨)。
+
+## 【最新】推奨 cron 構成(GetAreaClass非対応対応版)
+
+日次の宿取得は、カテゴリ列挙(--all)ではなく **--enumerate-area** を使う。
+GetAreaClass が使えない現状は47都道府県フォールバックで全国を列挙するため、
+これが --all(カテゴリ4種)より圧倒的に網羅的。多重起動ロック済みなので重複実行も安全。
+
+```
+# 毎日3時: 47都道府県で新規列挙 → 詳細化 → パージ(日次の主取得)
+0 3 * * *  cd /home/ユーザー名/yado-graph && /usr/local/bin/php bin/fetch-hotels.php --enumerate-area --detail --purge --limit=500 >> storage/logs/batch.log 2>&1
+
+# 毎日5時: こだわり文を25軒/日ずつ(検索無料枠内で自動停止)
+0 5 * * *  cd /home/ユーザー名/yado-graph && /usr/local/bin/php bin/generate-official-summary.php --limit=25 >> storage/logs/content.log 2>&1
+
+# 毎週月曜4時: 特集1本 自動公開 + こだわり25軒 + メール通知
+0 4 * * 1  cd /home/ユーザー名/yado-graph && /usr/local/bin/php bin/weekly-content.php >> storage/logs/content.log 2>&1
+
+# 毎月1日4時: 全県総ざらい(取りこぼし回収。--full は最終ページまで追尾)
+0 4 1 * *  cd /home/ユーザー名/yado-graph && /usr/local/bin/php bin/fetch-hotels.php --full --limit=0 >> storage/logs/full.log 2>&1
+```
+
+注意:
+- PHPフルパスは必ず `which php` で確認(mixhostは通常 /usr/local/bin/php)
+- 初回の全件取得だけは手動で `nohup php bin/fetch-hotels.php --full --limit=0 &` を先に実行
+- --all は旧仕様(カテゴリのみ)。GetAreaClassが復活しない限り日次では使わない

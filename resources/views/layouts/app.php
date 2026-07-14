@@ -32,6 +32,19 @@ $activeTab = $activeTab ?? 'home';
     '@type'    => 'WebSite',
     'name'     => config('app.name'),
     'url'      => config('app.url'),
+    // サイト内検索をGoogleに認識させる(sitelinks searchbox 狙い)
+    'potentialAction' => [
+        '@type'       => 'SearchAction',
+        'target'      => ['@type' => 'EntryPoint', 'urlTemplate' => rtrim((string) config('app.url'), '/') . '/search?q={search_term_string}'],
+        'query-input' => 'required name=search_term_string',
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
+<script type="application/ld+json"><?= json_encode([
+    '@context' => 'https://schema.org',
+    '@type'    => 'Organization',
+    'name'     => config('app.name'),
+    'url'      => config('app.url'),
+    'description' => '全国の旅館・温泉宿を、クチコミ評価や特徴から見つけられる宿泊メディア。',
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 <?php endif; ?>
 <?php if ($canonical): ?><link rel="canonical" href="<?= e($canonical) ?>"><?php endif; ?>

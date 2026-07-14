@@ -22,3 +22,6 @@
   color:#241505;background:var(--amber);border-color:var(--amber);font-weight:700;
 }
 .section-tab-all{color:var(--amber-deep);border-style:dashed;}
+
+/* タブからのジャンプ時、sticky タブ(約48px)に隠れないよう余白を確保 */
+[id^="rail-"]{scroll-margin-top:60px;}
