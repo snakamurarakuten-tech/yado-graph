@@ -25,6 +25,8 @@ $activeTab = $activeTab ?? 'home';
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title><?= e($title) ?></title>
 <meta name="description" content="<?= e($description) ?>">
+<?php // Google Search Console の所有権確認(全ページのheadに出力される) ?>
+<meta name="google-site-verification" content="1r7s7WV3UCn_YQ4RDNY_N-Xp-0AD5YT7qLLDWWmU45Y">
 <?php if (!empty($seo['robots'])): ?><meta name="robots" content="<?= e($seo['robots']) ?>"><?php endif; ?>
 <?php if (($_SERVER['REQUEST_URI'] ?? '/') === '/'): ?>
 <script type="application/ld+json"><?= json_encode([
