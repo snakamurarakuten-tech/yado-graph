@@ -49,9 +49,18 @@ function rate(): void
 {
     usleep((int) (RATE_SLEEP * 1_000_000));
 }
+$__startedAt = microtime(true);
+$GLOBALS['__logLines'] = [];
+
 function logline(string $m): void
 {
-    fwrite(STDOUT, '[' . date('H:i:s') . '] ' . $m . "\n");
+    $line = '[' . date('H:i:s') . '] ' . $m;
+    fwrite(STDOUT, $line . "\n");
+    // 完了通知の本文に含めるため蓄積する(直近40行のみ使用)
+    $GLOBALS['__logLines'][] = $line;
+    if (count($GLOBALS['__logLines']) > 200) {
+        array_shift($GLOBALS['__logLines']);
+    }
 }
 
 $args = array_slice($argv, 1);
@@ -307,3 +316,14 @@ $nl = BASE_PATH . '/storage/logs/notify.log';
 if (is_file($nl) && filesize($nl) > 5 * 1024 * 1024) { @rename($nl, $nl . '.old'); }
 
 logline('DONE. 総件数: ' . $repo->count());
+
+// 実行結果を必ず通知する(正常時も送る。何が起きたか毎回把握できるように)
+$__elapsed = (int) (microtime(true) - ($__startedAt ?? microtime(true)));
+$__mode = $doFull ? '--full(全県総ざらい)' : ($doAll ? '--all' : implode(' ', array_slice($argv, 1)));
+(new \App\Services\Ai\Notifier())->send(
+    '宿データ更新: 完了(' . $repo->count() . '件)',
+    "モード: {$__mode}\n"
+    . '所要: ' . intdiv($__elapsed, 60) . '分' . ($__elapsed % 60) . "秒\n"
+    . '総件数: ' . $repo->count() . "件\n\n"
+    . "--- 実行ログ ---\n" . implode("\n", array_slice($GLOBALS['__logLines'] ?? [], -40))
+);

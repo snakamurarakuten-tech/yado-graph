@@ -222,3 +222,28 @@ PROMPT;
 }
 
 echo "[done] 生成 {$done} 件。中身を確認してから git push してください\n";
+
+// 実行結果を必ず通知する(--hotel での単体テスト時は送らない)
+if ($onlyHotel === '') {
+    $__total = count(glob(BASE_PATH . '/content/official/*.json') ?: []);
+    $__reasons = [];
+    foreach ($state as $__st) {
+        if (is_array($__st)) {
+            $__r = (string) ($__st['reason'] ?? '?');
+            $__reasons[$__r] = ($__reasons[$__r] ?? 0) + 1;
+        }
+    }
+    $__breakdown = '';
+    foreach ($__reasons as $__r => $__c) {
+        $__breakdown .= "  {$__r}: {$__c}件\n";
+    }
+    (new \App\Services\Ai\Notifier())->send(
+        "こだわり文: {$done}件を生成(累計{$__total}件)",
+        "今回の生成: {$done}件\n"
+        . "累計: {$__total}件\n\n"
+        . "--- スキップ内訳(累計) ---\n"
+        . ($__breakdown !== '' ? $__breakdown : "  なし\n")
+        . "\n※ no_verified_site は公式サイトを検証できなかった宿。\n"
+        . "  30日後・最大3回まで自動で再挑戦します。"
+    );
+}
