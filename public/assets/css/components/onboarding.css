@@ -77,3 +77,10 @@
 }
 .ob-done:disabled{opacity:.4;}
 .ob-done:not(:disabled):active{filter:brightness(1.05);}
+
+/* オンボーディング表示中は下部ナビ・CTAを隠す。
+   これらは .frame の別レイヤー(bottom-stack)にあり、
+   シート下部のボタンと物理的に重なって押しづらくなるため。 */
+.frame:has(.onboarding.is-open) .bottom-stack{opacity:0;pointer-events:none;}
+.frame:has(.onboarding.is-open) .scroll-area{overflow:hidden;}
+body.ob-active .bottom-stack{opacity:0;pointer-events:none;}

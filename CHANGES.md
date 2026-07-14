@@ -366,3 +366,14 @@ Render揮発FS対策として生成物はDBではなくリポジトリ内 conten
 - ※ Hotel の AggregateRating は従来通り不採用(セルフサービングレビュー・ポリシー配慮)
 ### cron
 - docs に最新推奨cron構成を追記(日次は --enumerate-area で47都道府県フォールバック活用)
+
+## iOS Safari のスクロール問題を根本修正
+- reset.css: html/body を position:fixed + overflow:hidden で固定。
+  iOS Safari は body がスクロール可能だと掴んだ場所に関係なくページ全体が
+  引っ張られる(バウンス)ため、スクロールは .scroll-area だけに限定した
+- .scroll-area に overscroll-behavior:contain と scroll-behavior:smooth を付与
+- top-tabs.js: scrollIntoView は iOS で無視されることがあるため、
+  .scroll-area の scrollTop を rect 差分から自前計算する方式に変更
+  (なめらかさは CSS の scroll-behavior が担当)
+- オンボーディング表示中は下部ナビ・CTA を非表示に(:has() + body.ob-active の二重化)。
+  シート下部のボタンとナビが物理的に重なって押しづらい問題を解消

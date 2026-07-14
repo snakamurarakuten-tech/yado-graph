@@ -1,5 +1,16 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{scroll-behavior:smooth;background:var(--ink);}
+html{background:var(--ink);}
+/* iOS Safari対策: body自体はスクロールさせない。
+   スクロールは .scroll-area だけが担当する(掴んだ場所に関わらず
+   ページ全体が引っ張られる「バウンス」を根本から止める)。 */
+html,body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+  position:fixed;
+  width:100%;
+  top:0;left:0;
+}
 body{
   font-family:var(--font-sans);
   background:var(--paper);

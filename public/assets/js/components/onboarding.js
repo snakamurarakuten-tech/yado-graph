@@ -53,6 +53,7 @@ export function initOnboarding(onDone) {
 
   const close = () => {
     modal.classList.remove('is-open');
+    document.body.classList.remove('ob-active');
     modal.setAttribute('aria-hidden', 'true');
   };
 
@@ -70,6 +71,7 @@ export function initOnboarding(onDone) {
 
   // 開く(次フレームでトランジションを効かせる)
   modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('ob-active'); // :has()非対応ブラウザ用の保険
   requestAnimationFrame(() => modal.classList.add('is-open'));
   refresh();
 }

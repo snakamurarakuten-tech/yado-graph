@@ -22,7 +22,14 @@
   }
 }
 /* スクロールは内部だけ。下部メニューは常に最下部にピン留め(全ページ共通) */
-.scroll-area{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:24px;-webkit-overflow-scrolling:touch;}
+.scroll-area{
+  flex:1 1 auto;min-height:0;
+  overflow-y:auto;overflow-x:hidden;
+  padding-bottom:24px;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;   /* 端まで来ても親(body)に連鎖させない */
+  scroll-behavior:smooth;        /* タブからのジャンプをなめらかに(実スクロール要素はここ) */
+}
 .wrap{padding:0 var(--gutter);}
 /* 広い画面では本文の可読幅を保ちつつ、コンテンツを中央寄せ */
 @media (min-width:900px){

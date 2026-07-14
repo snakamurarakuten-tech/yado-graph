@@ -47,21 +47,24 @@ export function initSectionTabs() {
   const tabEls = Array.from(tabsEl.querySelectorAll('.section-tab[data-tab]'));
   if (tabEls.length === 0) return;
 
-  // タップでスムーズスクロール(固定タブ高さぶんは CSS scroll-margin-top で吸収)
+  // タップでスクロール。
+  // iOS Safari は scrollIntoView({behavior:'smooth'}) を無視することがあるため、
+  // 実スクロール要素(.scroll-area)の scrollTop を自前で計算して設定する。
+  // なめらかさは CSS 側の scroll-behavior:smooth が担当する。
   tabEls.forEach((tab) => {
     tab.addEventListener('click', (e) => {
       const target = targetOf(tab);
       if (!target) return; // 対応レールが無ければ通常のアンカー挙動に任せる
       e.preventDefault();
-      // ネイティブ scrollIntoView が最も確実(scroller の実体差を吸収)。
-      // 固定タブに隠れないよう、対象側の scroll-margin-top で余白を確保している。
-      try {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch {
-        // 超旧環境フォールバック: 手動計算
-        const top = (target.offsetTop || 0) - (tabsEl.offsetHeight + 8);
-        scroller.scrollTop = Math.max(0, top);
-      }
+
+      // scroller を基準にした target の相対位置を出す(offsetTop は
+      // position:relative な祖先基準になるため rect 差分で確実に取る)
+      const sRect = scroller.getBoundingClientRect();
+      const tRect = target.getBoundingClientRect();
+      const tabsH = tabsEl ? tabsEl.offsetHeight : 0;
+      const dest = Math.max(0, scroller.scrollTop + (tRect.top - sRect.top) - tabsH - 8);
+
+      scroller.scrollTop = dest; // CSS の scroll-behavior:smooth でなめらかに動く
       setActive(tab.dataset.tab);
     });
   });
