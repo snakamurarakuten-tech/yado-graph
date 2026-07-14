@@ -267,7 +267,7 @@ $hasAxis = !empty($hotel['axis']);
           <a class="feat" href="<?= e($feat) ?>" target="_blank" rel="noopener"><img src="<?= e($feat) ?>" alt="<?= e($hotel['hotelName']) ?>" loading="lazy"></a>
           <?php foreach ($rest as $i => $u): ?>
             <?php $isLast = ($i === count($rest) - 1) && $remain > 0; ?>
-            <a<?= $isLast ? ' class="more" data-more="+' . e((string) $remain) . '"' : '' ?> href="<?= e($u) ?>" target="_blank" rel="noopener"><img src="<?= e($u) ?>" alt="" loading="lazy"></a>
+            <a<?= $isLast ? ' class="more" data-more="+' . e((string) $remain) . '"' : '' ?> href="<?= e($u) ?>" target="_blank" rel="noopener"><img src="<?= e($u) ?>" alt="<?= e($hotel['hotelName'] . 'の写真' . ($i + 2) . '枚目') ?>" loading="lazy"></a>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>

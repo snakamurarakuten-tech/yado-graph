@@ -29,7 +29,7 @@ $sections = $sections ?? [];
   <div class="top-hero">
     <div class="brand"><?php component('logo', ['variant' => 'full', 'size' => 30]); ?></div>
     <?php if (!empty($hero['imageUrl'])): ?>
-      <img src="<?= e($hero['imageUrl']) ?>" alt="">
+      <img src="<?= e($hero['imageUrl']) ?>" alt="<?= e((string) ($hero['hotelName'] ?? '')) ?>">
     <?php endif; ?>
     <div class="hero-gradient"></div>
     <div class="hero-content">

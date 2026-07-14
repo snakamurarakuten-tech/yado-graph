@@ -28,7 +28,7 @@ $aff  = (string) ($card['affiliateUrl'] ?? '');
   <div class="card-thumb-wrap">
     <?php // P2-6: 宿名の重複を防ぐため画像altは装飾扱い(空)。宿名はテキスト側で1回だけ出す。 ?>
     <?php if ($img): ?>
-      <span class="thumb-wrap"><img class="thumb" src="<?= e($img) ?>" alt="" loading="lazy"></span>
+      <span class="thumb-wrap"><img class="thumb" src="<?= e($img) ?>" alt="<?= e($name) ?>" loading="lazy"></span>
     <?php else: ?>
       <div class="thumb thumb-empty">No Image</div>
     <?php endif; ?>

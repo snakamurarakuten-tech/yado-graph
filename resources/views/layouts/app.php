@@ -114,9 +114,9 @@ $activeTab = $activeTab ?? 'home';
 
 <div class="stage">
   <div class="frame">
-    <div class="scroll-area" id="scrollArea">
+    <main class="scroll-area" id="scrollArea">
       <?= $content ?>
-    </div>
+    </main>
 
     <div class="bottom-stack">
       <?php if (($showStickyCta ?? false)): ?>

@@ -9,7 +9,7 @@ export function cardHtml(item, cardType = 'poster', category = '', showCta = tru
   const tags = Array.isArray(item.tags) ? item.tags.join(',') : String(item.tags || '');
   const aff = item.affiliateUrl || '';
   const img = item.imageUrl
-    ? `<span class="thumb-wrap"><img class="thumb" src="${escapeAttr(item.imageUrl)}" alt="" loading="lazy"></span>`
+    ? `<span class="thumb-wrap"><img class="thumb" src="${escapeAttr(item.imageUrl)}" alt="${escapeAttr(item.hotelName || '')}" loading="lazy"></span>`
     : `<div class="thumb thumb-empty">No Image</div>`;
   const badges = Array.isArray(item.badges) && item.badges.length
     ? `<div class="badges badges-card">${item.badges
