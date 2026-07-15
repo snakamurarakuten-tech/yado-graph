@@ -546,12 +546,20 @@ $hasAxis = !empty($hotel['axis']);
     <script type="application/ld+json"><?= json_encode([
         '@context' => 'https://schema.org',
         '@type'    => 'BreadcrumbList',
-        'itemListElement' => array_map(function ($bc, $i) {
-            $item = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $bc['label']];
-            if (!empty($bc['href'])) {
-                $item['item'] = (string) config('app.url') . $bc['href'];
-            }
-            return $item;
+        'itemListElement' => array_map(function ($bc, $i) use ($hotel) {
+            // item(URL)は最後の項目以外で必須。省略すると Search Console で
+            // 「項目 item がありません」として無効扱いになるため、全項目に持たせる。
+            // href が空の項目(=最後の自ページ)は自身のURLを使う。
+            $base = rtrim((string) config('app.url'), '/');
+            $url = !empty($bc['href'])
+                ? $base . $bc['href']
+                : $base . '/hotel/' . rawurlencode((string) $hotel['hotelNo']);
+            return [
+                '@type'    => 'ListItem',
+                'position' => $i + 1,
+                'name'     => $bc['label'],
+                'item'     => $url,
+            ];
         }, $breadcrumb, array_keys($breadcrumb)),
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
   <?php endif; ?>

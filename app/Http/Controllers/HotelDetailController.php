@@ -178,13 +178,19 @@ final class HotelDetailController
         }
 
         // パンくず(SEO・セクション6)
+        // 注: BreadcrumbList では最後の項目以外に item(URL)が必須。
+        //     href を空にすると構造化データが無効になるため、必ずURLを持たせる。
         $breadcrumb = [
             ['label' => 'ホーム', 'href' => '/'],
             ['label' => 'カテゴリ', 'href' => '/categories'],
         ];
         if (($hotel['area'] ?? '') !== '') {
-            $breadcrumb[] = ['label' => (string) $hotel['area'], 'href' => ''];
+            $breadcrumb[] = [
+                'label' => (string) $hotel['area'],
+                'href'  => '/search?pref=' . rawurlencode((string) $hotel['area']),
+            ];
         }
+        // 最後の項目(この宿)は自ページなので href なし = リンクにしない
         $breadcrumb[] = ['label' => (string) ($hotel['hotelName'] ?? ''), 'href' => ''];
 
         View::render('detail/index', [
